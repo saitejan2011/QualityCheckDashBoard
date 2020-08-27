@@ -1,0 +1,26 @@
+.gridLayoutContainer {
+    width: 96%;
+    margin: auto;
+    .gridLayoutInnerContainer {
+        width: 100%;
+        height: 82vh;
+    }
+}
+
+.ag-row-even {
+    background: #fcfcfc !important;
+}
+
+.ag-row-odd {
+    background: #fff !important;
+}
+
+.ext-right {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.btn-action{
+    background-color:#1e90ff;
+    border-color: #1e90ff;
+}

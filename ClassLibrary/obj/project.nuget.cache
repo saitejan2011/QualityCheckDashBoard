@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "cTTszxVeDf9MSn64rIL26nW3JJiXq2MFeVry+owIGfdNDWsNr8uLWBToFdc0QTIgQnG1ylUG5kDS2nI2EtZ7GQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\ClassLibrary\\GridLayoutReact.ClassLibrary.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\saite\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\saite\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
