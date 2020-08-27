@@ -308,6 +308,7 @@ export default class GridLayout extends React.PureComponent<any, any> {
         let varDataArr = modelMetaData;
         qualityCheckTable.Data.push(varDataArr);
         //this.setState({ ...qualityCheckTables, qualityCheckTable });
+
         //this.setState({ someProperty: { ...this.state.someProperty, flag: false } });
 
 
