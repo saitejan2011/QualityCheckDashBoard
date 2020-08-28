@@ -10,7 +10,7 @@ import axios from 'axios';
 import { parse } from 'path';
 import { ColumnAnimationService } from 'ag-grid-community/dist/lib/rendering/columnAnimationService';
 import { Column, ColDef, _ } from 'ag-grid-community';
-import { ColumnDefinition } from '../../Models/ColumnDefinition';
+
 import '../../Utility/gbStyles.scss';
 import 'lodash';
 import FormModal from '../FormModal';
@@ -21,6 +21,7 @@ import { debug } from 'console';
 import { ITable } from '../../Models/ITable';
 import { IRowData } from '../../Models/RowData';
 import { ITableSchema } from '../../Models/ITableSchema';
+import { isNullOrUndefined } from 'util';
 
 
 
@@ -50,7 +51,9 @@ export default class GridLayout extends React.PureComponent<any, any> {
                     editable: true,
                     headerClass: "class-make",
                     //  newValueHandler: this.compareValues.bind(this),
-                    cellClass: this.onCellHigh.bind(this)
+                    cellClass: this.onCellHigh.bind(this),
+                    cellStyle: this.onCellStyleUpdate.bind(this),
+                    cellRenderer: this.onCellDOMUpdate.bind(this),
                 },
                 columnDefs: [],
                 rowData: null,
@@ -61,6 +64,7 @@ export default class GridLayout extends React.PureComponent<any, any> {
                 rowSelection: "multiple",
                 onGridReady: this.onGridReady.bind(this),
                 onCellValueChanged: this.onCellValueChanged.bind(this),
+                
                 rowClassRules: {
                     'row-even': function (params: any) {
                         return params.node.rowIndex % 2 == 0;
@@ -75,6 +79,8 @@ export default class GridLayout extends React.PureComponent<any, any> {
                 qualityCheckList: []
             },
             qualityCheckTables: [],
+            qualityCheckTables_MainItem: [],
+            qualityCheckTables_SavingItems: [],
             identity: {
                 Name: null
             }
@@ -109,7 +115,7 @@ export default class GridLayout extends React.PureComponent<any, any> {
         let tableArr: ITable[] = [];
         return new Promise<any>(async (resolve: (items: any) => void, reject: (error: any) => void): Promise<void> => {
             tables.forEach((item: any, index: number) => {
-                
+
                 tableArr.push({
                     Name: item.name,
                     IsLoaded: false,
@@ -177,6 +183,7 @@ export default class GridLayout extends React.PureComponent<any, any> {
         let varQualityCheckTables = this.state.qualityCheckTables;
         let varQualityCheckTable = varQualityCheckTables.filter((s: any) => s.Name == tblName)[0];
         let clnQualityCheckObj = _.cloneObject(this.state);
+        debugger
         if (varQualityCheckTable && !(varQualityCheckTable.IsLoaded)) {
             this.getTableSchema(tblName).then(async (tblSchemaList: any) => {
                 this.setTableSchema(tblName, tblSchemaList, clnQualityCheckObj).then((clnQualityCheckObj: any) => {
@@ -229,7 +236,7 @@ export default class GridLayout extends React.PureComponent<any, any> {
             tblSchemaList.forEach((schemaItem: any) => {
                 tblSchemaArr.push({
                     columnName: schemaItem.columnName,
-                    dataType: schemaItem.columnName,
+                    dataType: schemaItem.dataType,
                     isIdentity: schemaItem.isIdentity,
                     isNullAble: schemaItem.isNull,
                     maximumLength: schemaItem.maximumLength,
@@ -277,6 +284,18 @@ export default class GridLayout extends React.PureComponent<any, any> {
         return colArr;
     }
 
+    onCellStyleUpdate = (params:any) => {
+        debugger;
+        let ss = this.state.gridOptions.api.getFocusedCell();
+        return params.data[this.state.identity.Name] == 2 && params.column.colId == "CountryName" ? { backgroundColor: 'rgb(115,194,251,0.2)' }: "";
+       // return '<span class="rag-element">' + params.value + '</span>';
+    }
+
+    onCellDOMUpdate = (params: any) => {
+        debugger;
+        return  params.value;
+    }
+
     onTableChange = (eve: any) => {
         let tblName: any = eve.target.value;
         debugger
@@ -290,32 +309,32 @@ export default class GridLayout extends React.PureComponent<any, any> {
         qualityCheckTable.Schema.forEach((schemaItem: any) => {
             tblSchemaArr.push({
                 columnName: schemaItem.columnName,
-                dataType: schemaItem.columnName,
+                dataType: schemaItem.dataType,
                 isIdentity: schemaItem.isIdentity,
-                isNullAble: schemaItem.isNull,
+                isNullAble: schemaItem.isNullAble,
                 maximumLength: schemaItem.maximumLength,
                 tableName: schemaItem.tableName,
-                value: ""
+                value: schemaItem.isIdentity?"TempID" + Math.floor(Math.random() * (1000 - 1) + 1):""
             });
         });
         return { data: tblSchemaArr };
     }
 
     onNewItem = () => {
-        debugger;
-        let modelMetaData = this.getTableModel();
+        let modelMetaDataArr = this.getTableModel();
         let qualityCheckTable = this.state.qualityCheckTables.filter((s: any) => s.IsActive == true)[0];
-        let varDataArr = modelMetaData;
-        qualityCheckTable.Data.push(varDataArr);
-        //this.setState({ ...qualityCheckTables, qualityCheckTable });
-
-        //this.setState({ someProperty: { ...this.state.someProperty, flag: false } });
-
-
+        qualityCheckTable.Data.unshift(modelMetaDataArr);
+        let clnQualityCheckObj = _.cloneObject(this.state);
+        debugger
+        clnQualityCheckObj.qualityCheckTables.filter((s: any) => s.IsActive == true).map((ff: any) => { ff.Data = qualityCheckTable.Data; return ff; });
+        this.setState({ qualityCheckTables: clnQualityCheckObj.qualityCheckTables }, () => {
+            debugger
+            this.onGridUpdate(qualityCheckTable.Name);
+        });
     }
 
 
-    public render() {   
+    public render() {
         return (
             <div className="gridLayoutContainer">
                 <div className="row mb-1">
@@ -434,7 +453,19 @@ export default class GridLayout extends React.PureComponent<any, any> {
     };
 
     onCellValueChanged = (eve: any) => {
-        debugger
+        debugger    
+        let varQualityCheckTables = this.state.qualityCheckTables;
+        let varIdenityName = this.state.identity.Name;
+        if (eve.data.Id.toString().toLowerCase().indexOf("tempid") >= 0) {
+            varQualityCheckTables.filter((s: any) => s.IsActive == true)[0].Data.forEach((item: any) => {
+                if (item.data.filter((row: any) => row.isIdentity == true)[0].value == eve.data[varIdenityName]) {
+                    item.data.filter((row: any) => row.columnName == eve.column.colId).map((rowItem: any) => { rowItem.value = eve.value; return rowItem; })
+                }
+            });
+        }
+        this.setState({ qualityCheckTables: varQualityCheckTables }, () => {
+            debugger;
+        });
         let ss = this.state;
     }
 
