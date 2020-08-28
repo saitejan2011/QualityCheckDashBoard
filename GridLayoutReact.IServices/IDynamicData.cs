@@ -8,16 +8,14 @@ namespace GridLayoutReact.IServices
 {
     public interface IDynamicData
     {
-
         List<Models.DB.Table> GetAllDBTables();
-
-        List<TableSchema> GetTableSchema(string tableName);
+        List<TableSchema> GetTableSchema(string tableName, string schemaType);
         Response InsertItemInDB(NewRow newRowObj);
 
         Response DeleteItemFromDB(DeleteRow delRowObj);
 
         Response UpdateItemInDB(EditRow editRowObj);
 
-        dynamic GetTableData(string tableName);
+        dynamic GetTableData(string tableName, string schemaType);
     }
 }

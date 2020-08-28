@@ -24,7 +24,7 @@ namespace GridLayoutReact.Services
             {
                 using (SqlConnection con = new SqlConnection(ConnectionString))
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'", con);
+                    SqlCommand cmd = new SqlCommand("SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES", con);
                     con.Open();
                     SqlDataReader dataReader = cmd.ExecuteReader();
                     List<Models.DB.Table> tableList = new List<Models.DB.Table>();
@@ -32,7 +32,8 @@ namespace GridLayoutReact.Services
                     {
                         tableList.Add(new Models.DB.Table()
                         {
-                            Name = dataReader["TABLE_NAME"] != null ? dataReader["TABLE_NAME"].ToString() : ""
+                            Name = dataReader["TABLE_NAME"] != null ? dataReader["TABLE_NAME"].ToString() : "",
+                            Type = dataReader["TABLE_SCHEMA"] != null ? dataReader["TABLE_SCHEMA"].ToString() : ""
                         });
                     }
                     return tableList;
@@ -44,7 +45,7 @@ namespace GridLayoutReact.Services
             }
         }
 
-        public List<TableSchema> GetTableSchema(string tableName)
+        public List<TableSchema> GetTableSchema(string tableName,string schemaType)
         {
             try
             {
@@ -52,21 +53,25 @@ namespace GridLayoutReact.Services
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = con;
-                    cmd.CommandText = @"SELECT T.Name AS TableName,
-                                        C.Name AS ColumnName,
-                                        Ty.Name AS ColumnDataType,
-                                        C.is_nullable AS IsNullAble,
-                                        C.is_identity AS IsIdentity ,
-										case when Ty.Name = 'nvarchar'
-                                        then C.max_length / 2
-                                        else
-                                        C.max_length end AS MaximumLength
-                                        FROM sys.tables T
-                                        INNER JOIN sys.columns C
-                                        ON T.OBJECT_ID = C.OBJECT_ID
-                                        INNER JOIN sys.types Ty
-                                        ON C.system_type_id = Ty.system_type_id
-                                        WHERE T.is_ms_shipped = 0 AND T.Name = '" + tableName + "' AND Ty.Name != 'sysname' ORDER BY T.name";
+                    cmd.CommandText = @"SELECT 
+        S.name as SchemaName,
+        T.Name AS TableName,
+        C.Name AS ColumnName,
+        Ty.Name AS ColumnDataType,
+        C.is_nullable AS IsNullAble,
+        C.is_identity AS IsIdentity ,
+        case when Ty.Name = 'nvarchar'
+        then C.max_length / 2
+        else
+        C.max_length end AS MaximumLength
+    FROM sys.tables T
+    INNER JOIN sys.columns C
+    ON T.OBJECT_ID = C.OBJECT_ID
+    INNER JOIN sys.types Ty
+    ON C.system_type_id = Ty.system_type_id
+    INNER JOIN sys.schemas S on 
+    S.schema_id = T.schema_id
+    WHERE T.is_ms_shipped = 0 AND T.Name = '" + tableName + "' AND S.name = '"+ schemaType + "' and Ty.Name != 'sysname' ORDER BY T.name";
                     con.Open();
                     SqlDataReader dataReader = cmd.ExecuteReader();
                     List<TableSchema> tableSchemaList = new List<TableSchema>();
@@ -77,6 +82,7 @@ namespace GridLayoutReact.Services
                             IsNull = dataReader["IsNullAble"] != DBNull.Value && dataReader["IsNullAble"].ToString().ToLower() == "true" ? true : false,
                             IsIdentity = dataReader["IsIdentity"] != DBNull.Value && dataReader["IsIdentity"].ToString().ToLower() == "true" ? true : false,
                             DataType = dataReader["ColumnDataType"] != DBNull.Value ? dataReader["ColumnDataType"].ToString() : string.Empty,
+                            Type = dataReader["SchemaName"] != DBNull.Value ? dataReader["SchemaName"].ToString() : string.Empty,
                             MaximumLength = dataReader["MaximumLength"] != DBNull.Value ? Convert.ToInt32(dataReader["MaximumLength"]) : -1,
                             ColumnName = dataReader["ColumnName"] != DBNull.Value ? dataReader["ColumnName"].ToString() : string.Empty,
                             TableName = dataReader["TableName"] != DBNull.Value ? dataReader["TableName"].ToString() : string.Empty
@@ -143,7 +149,7 @@ namespace GridLayoutReact.Services
             }
         }
 
-        public dynamic GetTableData(string tableName)
+        public dynamic GetTableData(string tableName ,string schemaType)
         {
             try
             {
@@ -153,8 +159,8 @@ namespace GridLayoutReact.Services
                     SqlCommand cmd = new SqlCommand();
                     con.Open();
                     cmd.Connection = con;
-                    cmd.CommandText = string.Format("SELECT * FROM {0}", tableName);
-                    var tblSchemaList = GetTableSchema(tableName);
+                    cmd.CommandText = string.Format("SELECT * FROM {0}.{1}", schemaType, tableName);
+                    var tblSchemaList = GetTableSchema(tableName, schemaType);
                     var tblKeys = tblSchemaList.Select(schma => schma.ColumnName).ToList();
                     List<Models.MiddleWare.Table> dataTable = new List<Models.MiddleWare.Table>();
                     using (SqlDataReader rdr = cmd.ExecuteReader())
