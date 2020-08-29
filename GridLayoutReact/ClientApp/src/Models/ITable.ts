@@ -1,12 +1,11 @@
-import { ITableSchema } from "./ITableSchema";
+import { IServerResponse } from "./IServerResponse";
 
 
 
 export interface ITable {
-    Name: string;
-    Type: string;
-    Schema?: ITableSchema;
-    Data?: any;
-    IsActive?: boolean;
-    IsLoaded?: boolean;
+    name: string;
+    type: string;
+    serverResponse: IServerResponse;    
+    isActive?: boolean;
+    isLoaded?: boolean;
 }   

@@ -24,7 +24,7 @@ namespace GridLayoutReact.Services
             {
                 using (SqlConnection con = new SqlConnection(ConnectionString))
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES", con);
+                    SqlCommand cmd = new SqlCommand("SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES ", con);
                     con.Open();
                     SqlDataReader dataReader = cmd.ExecuteReader();
                     List<Models.DB.Table> tableList = new List<Models.DB.Table>();
@@ -149,7 +149,7 @@ namespace GridLayoutReact.Services
             }
         }
 
-        public dynamic GetTableData(string tableName ,string schemaType)
+        public ServerResponse GetTableData(string tableName ,string schemaType)
         {
             try
             {
@@ -160,37 +160,38 @@ namespace GridLayoutReact.Services
                     con.Open();
                     cmd.Connection = con;
                     cmd.CommandText = string.Format("SELECT * FROM {0}.{1}", schemaType, tableName);
-                    var tblSchemaList = GetTableSchema(tableName, schemaType);
+                    List<TableSchema> tblSchemaList = GetTableSchema(tableName, schemaType);
                     var tblKeys = tblSchemaList.Select(schma => schma.ColumnName).ToList();
+                    
                     List<Models.MiddleWare.Table> dataTable = new List<Models.MiddleWare.Table>();
+                    
+
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
+                        ServerResponse serverResponseObj = new ServerResponse();
+                        List<Dictionary<string, string>> dataList = new List<Dictionary<string, string>>();
+                        List<TableSchema> schemaList = new List<TableSchema>();
                         while (rdr.Read())
                         {
-                            List<DyanmicData> dynamicDataList = new List<DyanmicData>();
+                            
+                            Dictionary<string, string> propsDict = new Dictionary<string, string>();
                             foreach (var item in tblKeys)
                             {
-                                TableSchema currentSchemaItem = tblSchemaList.Where(tblItem => tblItem.ColumnName.ToString().ToLower() == item.ToString().ToLower()).FirstOrDefault();
-                                dynamicDataList.Add(new DyanmicData()
-                                {
-                                    ColumnName = currentSchemaItem.ColumnName.ToString(),
-                                    IsIdentity = currentSchemaItem.IsIdentity,
-                                    MaximumLength = currentSchemaItem.MaximumLength,
-                                    IsNull = currentSchemaItem.IsNull,
-                                    DataType = currentSchemaItem.DataType,
-                                    Value = rdr[item]
-                                });
+                                propsDict.Add(item.ToString(), rdr[item].ToString());
                             }
-                            dataTable.Add(new Models.MiddleWare.Table() { Data = dynamicDataList });
+                            dataList.Add(propsDict);
                         }
-                        return dataTable;
+                        serverResponseObj.Data = dataList;
+                        serverResponseObj.Schemas = tblSchemaList;
+
+                        return serverResponseObj;
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                return new Response() { IsResponseSuccess = false, Message = ex.Message.ToString() };
+                return new ServerResponse();
 
             }
         }

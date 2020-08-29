@@ -6,7 +6,7 @@ namespace GridLayoutReact.Models.MiddleWare
 {
     public class Table
     {
-        public List<DyanmicData> Data { get; set; }
+        public List<ServerResponse> Data { get; set; }
 
     }
 }

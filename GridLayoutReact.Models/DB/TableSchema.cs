@@ -8,7 +8,6 @@ namespace GridLayoutReact.Models.DB
     {
         public bool IsNull { get; set; }
         public bool IsIdentity { get; set; }
-
         public string Type { get; set; }
         public string DataType { get; set; }
         public int MaximumLength { get; set; }

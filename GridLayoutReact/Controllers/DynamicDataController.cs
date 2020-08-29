@@ -34,7 +34,7 @@ namespace GridLayoutReact.Controllers
         }
 
         [HttpGet]
-        public dynamic GetTableData(string tableName,string schemaType)
+        public ServerResponse GetTableData(string tableName,string schemaType)
         {
             return _dynamicData.GetTableData(tableName, schemaType);
         }

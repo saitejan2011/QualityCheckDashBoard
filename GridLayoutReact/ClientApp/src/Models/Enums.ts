@@ -1,4 +1,3 @@
-import { ITableSchema } from "./ITableSchema";
 
 
 

@@ -16,6 +16,6 @@ namespace GridLayoutReact.IServices
 
         Response UpdateItemInDB(EditRow editRowObj);
 
-        dynamic GetTableData(string tableName, string schemaType);
+        ServerResponse GetTableData(string tableName, string schemaType);
     }
 }

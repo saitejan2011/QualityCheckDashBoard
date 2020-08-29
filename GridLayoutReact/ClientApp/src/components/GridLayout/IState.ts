@@ -1,9 +1,11 @@
-import { GridOptions } from "ag-grid-community";
+import { ITable } from "../../Models/ITable";
+import { gridOptions } from "../FormModal/IProps";
 
 export interface IState {
-    gridOptions: any;
+    gridOptions:any;
     data: any;
-    qualityCheckTables: any;
+    qualityCheckList: ITable[];
+    qualityCheckList_PatchItems: ITable[];
     identity: any;
 
 }
