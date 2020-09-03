@@ -1,12 +1,11 @@
-import { QualityCheckFormType } from "./Enums";
+import { QualityCheckFormType } from "./QualityCheckFormType";
+import { IList } from "./IList";
 
 
 
 export interface IPatchTable {
-    TableName?: string;
-    IdentityColumnName?: string;
-    IdentityColumnValue?: number;
-    FormType?: QualityCheckFormType;
-    Data?: any[]
-    
+    TableName: string;
+    List: IList[];
+    Type: string;
+    IdentityColumnName: string;
 }   

@@ -6,8 +6,8 @@ namespace GridLayoutReact.Models.MiddleWare
 {
     public class DeleteRow:DBRow
     {
-        public int[] Id { get; set; }
-        public string IdentityColumnName  { get; set; }
+
+        public dynamic Data { get; set; }
 
     }
 }

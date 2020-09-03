@@ -8,7 +8,9 @@ export const Constants: any = {
     },
     actions:{
         getTables:"GetTables",
-        getTableData:"GetTableData"
+        getTableData: "GetTableData",
+        patchItems: "PatchItems",
+        deleteItemFromDB:"DeleteItemFromDB"
     }
 }
 

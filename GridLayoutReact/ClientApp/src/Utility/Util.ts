@@ -1,4 +1,6 @@
+import { IPatchTable } from './../Models/IPatchTable';
 import axios from "axios";
+import { IDelete } from '../Models/IDelete';
 
 export  class Utilities {
 
@@ -23,6 +25,50 @@ export  class Utilities {
                 })
                  .catch(error => {
                      reject(error);
+                    console.log(error);
+                });
+            return data;
+        });
+    }
+
+    public patchDataToDB(url: string,patchTable:IPatchTable) {
+        return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
+            let data;
+            axios.put(url,patchTable)
+                .then(response => {
+                    debugger
+                    if (response && response.data && Object.keys(response.data).length <= 0) {
+                        resolve([]);
+                    }
+                    else {
+                        resolve(response.data);
+                    }
+                    console.log(response);
+                })
+                .catch(error => {
+                    reject(error);
+                    console.log(error);
+                });
+            return data;
+        });
+    }
+
+    public deleteDataFromDB(url: string, delObj: IDelete) {
+        return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
+            let data;
+            axios.put(url, delObj)
+                .then(response => {
+                    debugger
+                    if (response && response.data && Object.keys(response.data).length <= 0) {
+                        resolve([]);
+                    }
+                    else {
+                        resolve(response.data);
+                    }
+                    console.log(response);
+                })
+                .catch(error => {
+                    reject(error);
                     console.log(error);
                 });
             return data;

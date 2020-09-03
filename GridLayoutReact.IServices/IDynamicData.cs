@@ -10,12 +10,17 @@ namespace GridLayoutReact.IServices
     {
         List<Models.DB.Table> GetAllDBTables();
         List<TableSchema> GetTableSchema(string tableName, string schemaType);
-        Response InsertItemInDB(NewRow newRowObj);
+        //  Response InsertItemInDB(NewRow newRowObj);
+        Response InsertItemInDB(NewRow rowObj);
 
         Response DeleteItemFromDB(DeleteRow delRowObj);
 
         Response UpdateItemInDB(EditRow editRowObj);
 
         ServerResponse GetTableData(string tableName, string schemaType);
+
+        Response PatchItems(TransceivalExchange clientPatchRequest);
+
+        ServerResponse GetRowsById(PatchRow patchItem);
     }
 }

@@ -45,30 +45,25 @@ namespace GridLayoutReact.Controllers
             return _dynamicData.GetTableSchema(tableName, schemaType);
         }
 
-        [HttpPost]
-        public Response InsertItemInDB(NewRow newRowObj)
+    
+        [HttpPut]
+        public ActionResult<Response> PatchItems(TransceivalExchange clientPatchRequestObj)
         {
-            return _dynamicData.InsertItemInDB(newRowObj);
+                Response response = _dynamicData.PatchItems(clientPatchRequestObj);
+            if(response.IsResponseSuccess)
+            return Ok(new { Result = "Saved", Response= response });
+            else
+            return NotFound(new { Result = "something went wrong" });
         }
 
         [HttpPut]
-        public Response UpdateItemInDB(EditRow editRowObj)
-        {
-            return _dynamicData.UpdateItemInDB(editRowObj);
-        }
-
-        [HttpDelete]
         public Response DeleteItemFromDB(DeleteRow delRowObj)
         {
             return _dynamicData.DeleteItemFromDB(delRowObj);
         }
 
-        public void GroupByTable(dynamic dataTable)
-        {
-            var s = 0;
-            string output = JsonConvert.SerializeObject(dataTable);
-            dynamic deserializedProduct = JsonConvert.DeserializeObject<dynamic>(output);
-        }
+
+
 
     }
 }

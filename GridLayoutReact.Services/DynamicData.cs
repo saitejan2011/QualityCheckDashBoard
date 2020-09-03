@@ -45,7 +45,7 @@ namespace GridLayoutReact.Services
             }
         }
 
-        public List<TableSchema> GetTableSchema(string tableName,string schemaType)
+        public List<TableSchema> GetTableSchema(string tableName, string schemaType)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace GridLayoutReact.Services
     ON C.system_type_id = Ty.system_type_id
     INNER JOIN sys.schemas S on 
     S.schema_id = T.schema_id
-    WHERE T.is_ms_shipped = 0 AND T.Name = '" + tableName + "' AND S.name = '"+ schemaType + "' and Ty.Name != 'sysname' ORDER BY T.name";
+    WHERE T.is_ms_shipped = 0 AND T.Name = '" + tableName + "' AND S.name = '" + schemaType + "' and Ty.Name != 'sysname' ORDER BY T.name";
                     con.Open();
                     SqlDataReader dataReader = cmd.ExecuteReader();
                     List<TableSchema> tableSchemaList = new List<TableSchema>();
@@ -99,57 +99,61 @@ namespace GridLayoutReact.Services
             }
         }
 
-        public Response InsertItemInDB(NewRow rowObj)
+
+
+
+
+        public ServerResponse GetRowsById(PatchRow patchItem)
         {
             try
             {
                 using (SqlConnection con = new SqlConnection(ConnectionString))
                 {
+
                     SqlCommand cmd = new SqlCommand();
                     con.Open();
                     cmd.Connection = con;
-                    Dictionary<string, string> result = JsonConvert.DeserializeObject<Dictionary<string, string>>(rowObj.JSONData.ToString());
-                    string dict_keys = string.Join(", ", result.Select(p => p.Key));
-                    var dict_vals = string.Format("'{0}'", string.Join("','", result.Select(i => i.Value.Replace("'", "''"))));
-                    cmd.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES ({2})", rowObj.TableName, dict_keys, dict_vals);
-                    if (cmd.ExecuteNonQuery() == 1)
-                        return new Response() { IsResponseSuccess = true, Message = "SUCCESS" };
-                    else
-                        return new Response() { IsResponseSuccess = false, Message = "FAILED" };
+                    string identityColumnName = patchItem.IdentityColumnName;
+                    List<dynamic> identityKeyValues = new List<dynamic>();
+                    foreach (var item in patchItem.dynamicListItems)
+                    {
+                        Dictionary<string, string> result = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.ToString());
+                        identityKeyValues.Add(result.Where(res => res.Key == patchItem.IdentityColumnName).Select(i => i.Key + " = " + i.Value).ToList().FirstOrDefault());
+                    }
+                    List<TableSchema> tblSchemaList = GetTableSchema(patchItem.TableName, patchItem.SchemaType);
+                    var tblKeys = tblSchemaList.Select(schma => schma.ColumnName).ToList();
+                    cmd.CommandText = string.Format("SELECT * FROM {0}.{1} WHERE {2}", patchItem.SchemaType, patchItem.TableName, string.Join(" OR ", identityKeyValues));
+                    List<Models.MiddleWare.Table> dataTable = new List<Models.MiddleWare.Table>();
+
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        ServerResponse serverResponseObj = new ServerResponse();
+                        List<Dictionary<string, string>> dataList = new List<Dictionary<string, string>>();
+
+                        List<TableSchema> schemaList = new List<TableSchema>();
+                        while (rdr.Read())
+                        {
+                            Dictionary<string, string> propsDict = new Dictionary<string, string>();
+                            foreach (var item in tblKeys)
+                            {
+                                propsDict.Add(item.ToString(), rdr[item].ToString());
+                            }
+                            dataList.Add(propsDict);
+                        }
+                        serverResponseObj.Data = dataList;
+                        serverResponseObj.Schemas = tblSchemaList;
+                        return serverResponseObj;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                return new Response() { IsResponseSuccess = false, Message = ex.Message.ToString() };
+                return new ServerResponse();
 
             }
         }
 
-        public Response DeleteItemFromDB(DeleteRow delRowObj)
-        {
-            try
-            {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
-                {
-                    SqlCommand cmd = new SqlCommand();
-                    con.Open();
-                    cmd.Connection = con;
-                    string ids = string.Join(", ", delRowObj.Id.Select(id => id));
-                    cmd.CommandText = string.Format("DELETE FROM {0} WHERE {1} IN ({2})", delRowObj.TableName, delRowObj.IdentityColumnName, ids);
-                    if (cmd.ExecuteNonQuery() == 1)
-                        return new Response() { IsResponseSuccess = true, Message = "SUCCESS" };
-                    else
-                        return new Response() { IsResponseSuccess = false, Message = "FAILED" };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new Response() { IsResponseSuccess = false, Message = ex.Message.ToString() };
-
-            }
-        }
-
-        public ServerResponse GetTableData(string tableName ,string schemaType)
+        public ServerResponse GetTableData(string tableName, string schemaType)
         {
             try
             {
@@ -162,9 +166,9 @@ namespace GridLayoutReact.Services
                     cmd.CommandText = string.Format("SELECT * FROM {0}.{1}", schemaType, tableName);
                     List<TableSchema> tblSchemaList = GetTableSchema(tableName, schemaType);
                     var tblKeys = tblSchemaList.Select(schma => schma.ColumnName).ToList();
-                    
+
                     List<Models.MiddleWare.Table> dataTable = new List<Models.MiddleWare.Table>();
-                    
+
 
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
@@ -173,7 +177,7 @@ namespace GridLayoutReact.Services
                         List<TableSchema> schemaList = new List<TableSchema>();
                         while (rdr.Read())
                         {
-                            
+
                             Dictionary<string, string> propsDict = new Dictionary<string, string>();
                             foreach (var item in tblKeys)
                             {
@@ -196,6 +200,80 @@ namespace GridLayoutReact.Services
             }
         }
 
+        public Response InsertItemInDB(NewRow rowObj)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(ConnectionString))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    con.Open();
+                    cmd.Connection = con;
+                    List<List> listObj = new List<List>();
+                    foreach (var item in rowObj.dynamicListItems)
+                    {
+                        Dictionary<string, string> result = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.ToString());
+                        string dict_keys = string.Join(", ", result.Where(res => res.Key != rowObj.IdentityColumnName).Select(p => p.Key));
+                        var dict_vals = string.Format("'{0}'", string.Join("','", result.Where(res => res.Key != rowObj.IdentityColumnName).Select(i => i.Value.Replace("'", "''"))));
+                        cmd.CommandText = string.Format("INSERT INTO {0}.{1} ({2}) OUTPUT INSERTED.* VALUES ({3})", rowObj.SchemaType, rowObj.TableName, dict_keys, dict_vals);
+
+
+
+                        if (rowObj.TableSchemaList == null && rowObj.TableSchemaList.Count <= 0)
+                        {
+                            rowObj.TableSchemaList = GetTableSchema(rowObj.TableName, rowObj.SchemaType);
+                        }
+
+                        var tblKeys = rowObj.TableSchemaList.Select(schma => schma.ColumnName).ToList();
+
+                        listObj = GetOutputExecutionResult(cmd, tblKeys, result, "EDIT");
+                    }
+                    return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return new Response() { IsResponseSuccess = false, Message = ex.Message };
+
+            }
+        }
+
+
+        public List<List> GetOutputExecutionResult(SqlCommand cmd, dynamic tblKeys, Dictionary<string, string> result, string formType)
+        {
+            List<List> listObj = new List<List>();
+            try
+            {
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    List<Dictionary<string, string>> dataList = new List<Dictionary<string, string>>();
+
+                    List<TableSchema> schemaList = new List<TableSchema>();
+                    while (rdr.Read())
+                    {
+                        Dictionary<string, string> propsDict = new Dictionary<string, string>();
+                        foreach (var row in tblKeys)
+                        {
+                            propsDict.Add(row.ToString(), rdr[row].ToString());
+                        }
+
+                        listObj.Add(new List() { Data = propsDict, FormType = formType, IsResponseSuccessfull = true });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+
+                listObj.Add(new List() { Data = result, FormType = formType, IsResponseSuccessfull = false });
+            }
+
+            return listObj;
+        }
+
+
+
         public Response UpdateItemInDB(EditRow editRowObj)
         {
             try
@@ -205,27 +283,155 @@ namespace GridLayoutReact.Services
                     SqlCommand cmd = new SqlCommand();
                     con.Open();
                     cmd.Connection = con;
-                    var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(editRowObj.JSONData.ToString());
-                    string keyValuesQueryTxt = string.Empty;
-                    int index = 0;
-                    foreach (var item in result)
+                    List<List> listObj = new List<List>();
+                    foreach (var rowObj in editRowObj.dynamicListItems)
                     {
-                        keyValuesQueryTxt += string.Concat(item.Key, " = '", item.Value, "'", (index == result.Count - 1) ? "" : ",");
-                        index++;
-                    }
+                        var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(rowObj.ToString());
+                        string keyValuesQueryTxt = string.Empty;
+                        int index = 0;
+                        string identityColumnValue = string.Empty;
 
-                    cmd.CommandText = string.Format("UPDATE {0} SET {1} WHERE {2}={3}", editRowObj.TableName, keyValuesQueryTxt, editRowObj.IdentityColumnName, editRowObj.Id);
-                    if (cmd.ExecuteNonQuery() == 1)
-                        return new Response() { IsResponseSuccess = true, Message = "SUCCESS" };
-                    else
-                        return new Response() { IsResponseSuccess = false, Message = "FAILED" };
+                        foreach (var item in result)
+                        {
+                            if (item.Key == editRowObj.IdentityColumnName)
+                            {
+                                identityColumnValue = item.Value;
+                            }
+                            else
+                            {
+                                keyValuesQueryTxt += string.Concat(item.Key, " = '", item.Value, "'", (index == result.Count - 1) ? "" : ",");
+                            }
+                            index++;
+                        }
+
+                        cmd.CommandText = string.Format("UPDATE {0}.{1} SET {2} OUTPUT INSERTED.* WHERE {3}={4}", editRowObj.SchemaType, editRowObj.TableName, keyValuesQueryTxt, editRowObj.IdentityColumnName, identityColumnValue);
+
+                        if (editRowObj.TableSchemaList == null && editRowObj.TableSchemaList.Count <= 0)
+                        {
+                            editRowObj.TableSchemaList = GetTableSchema(editRowObj.TableName, editRowObj.SchemaType);
+                        }
+
+                        var tblKeys = editRowObj.TableSchemaList.Select(schma => schma.ColumnName).ToList();
+
+                        listObj = GetOutputExecutionResult(cmd, tblKeys, result, "NEW");
+
+                    }
+                    return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
                 }
+            }
+            catch (Exception ex)
+            {
+                return new Response() { IsResponseSuccess = false, Message = ex.Message };
+
+            }
+
+        }
+
+
+        public Response DeleteItemFromDB(DeleteRow delRowObj)
+        {
+            try
+            {
+                string tableName = delRowObj.TableName.ToString();
+                string schemaType = delRowObj.Type != null ? delRowObj.Type.ToString() : string.Empty;
+                var schema = GetTableSchema(tableName, schemaType);
+                var delItemList = delRowObj.Data;//.Where(obj => obj.FormType == "DELETE").Select(s => s.Data).ToList();
+                var identityColumn = schema.Where(s => s.IsIdentity == true).FirstOrDefault();
+                Dictionary<string, string> result;
+                if (identityColumn != null && delItemList.Count > 0)
+                {
+
+                    using (SqlConnection con = new SqlConnection(ConnectionString))
+                    {
+                        SqlCommand cmd = new SqlCommand();
+                        con.Open();
+                        cmd.Connection = con;
+
+                        List<string> testt = new List<string>();
+                        foreach (var item in delItemList)
+                        {
+                            result = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.ToString());
+                            testt.Add(result.Where(s => s.Key == identityColumn.ColumnName).Select(d => d.Value).FirstOrDefault());
+                        }
+                        string ids = string.Join(", ", testt.Select(id => id));
+                        cmd.CommandText = string.Format("DELETE FROM {0} WHERE {1} IN ({2})", delRowObj.TableName, identityColumn.ColumnName, ids);
+                        cmd.ExecuteNonQuery();
+                    }
+                    
+                }
+                else
+                {
+                    return new Response() { IsResponseSuccess = true, Message = "FAILED" };
+                }
+                return new Response() { IsResponseSuccess = true, Message = "SUCCESS" };
             }
             catch (Exception ex)
             {
                 return new Response() { IsResponseSuccess = false, Message = ex.Message.ToString() };
 
             }
+        }
+
+
+
+        public Response PatchItems(TransceivalExchange clientPatchRequestObj)
+        {
+            try
+            {
+                Response responseObj;
+
+                string tableName = clientPatchRequestObj.TableName.ToString();
+                string schemaType = clientPatchRequestObj.Type != null ? clientPatchRequestObj.Type.ToString() : string.Empty;
+                var schema = GetTableSchema(tableName, schemaType);
+
+                var newItemList = clientPatchRequestObj.List.Where(obj => obj.FormType == "NEW").Select(s => s.Data).ToList();
+                var editItemList = clientPatchRequestObj.List.Where(obj => obj.FormType == "EDIT").Select(s => s.Data).ToList();
+                var identityColumn = schema.Where(s => s.IsIdentity == true).FirstOrDefault();
+                bool isResponseValid = true;
+
+                TransceivalExchange transExchnageObj = new TransceivalExchange() { TableName = tableName, IdentityColumnName = identityColumn.ColumnName, Type = schemaType, List = new List<List>(), };
+
+
+                if (identityColumn != null)
+                {
+                    if (newItemList.Count > 0)
+                    {
+                        responseObj = InsertItemInDB(new NewRow() { TableName = tableName, SchemaType = schemaType, IdentityColumnName = identityColumn.ColumnName, dynamicListItems = newItemList, TableSchemaList = schema });
+                        if (responseObj.IsResponseSuccess)
+                        {
+                            transExchnageObj.List.AddRange(responseObj.Result);
+                        }
+                        else
+                        {
+                            isResponseValid = false;
+                        }
+                    }
+
+                    if (editItemList.Count > 0)
+                    {
+                        responseObj = UpdateItemInDB(new EditRow() { TableName = tableName, SchemaType = schemaType, IdentityColumnName = identityColumn.ColumnName, dynamicListItems = editItemList, TableSchemaList = schema });
+                        if (responseObj.IsResponseSuccess)
+                        {
+                            transExchnageObj.List.AddRange(responseObj.Result);
+                        }
+                        else
+                        {
+                            isResponseValid = false;
+                        }
+                    }
+                }
+                else
+                {
+                    return new Response() { IsResponseSuccess = false, Message = "There is no Identity column. Cannot proccess the action" };
+                }
+                return new Response() { IsResponseSuccess = isResponseValid, Message = "SUCCESS", TransExchange = transExchnageObj };
+            }
+            catch (Exception ex)
+            {
+                return new Response() { IsResponseSuccess = false, Message = ex.Message };
+            }
+
+
 
         }
 

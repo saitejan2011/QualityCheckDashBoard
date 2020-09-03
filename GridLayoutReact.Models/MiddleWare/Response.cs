@@ -8,7 +8,12 @@ namespace GridLayoutReact.Models.MiddleWare
     {
         public string Message { get; set; }
         public bool IsResponseSuccess { get; set; }
-        public dynamic obj { get; set; }
+
+        
+        public List<List> Result { get; set; }
+
+        public TransceivalExchange TransExchange { get; set; }
 
     }
+ 
 }

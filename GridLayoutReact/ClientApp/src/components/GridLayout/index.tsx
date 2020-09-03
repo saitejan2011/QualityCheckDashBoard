@@ -9,8 +9,7 @@ import { IState } from './IState';
 import axios from 'axios';
 import { parse } from 'path';
 import { ColumnAnimationService } from 'ag-grid-community/dist/lib/rendering/columnAnimationService';
-import { Column, ColDef, _, IsColumnFunc } from 'ag-grid-community';
-
+import { Column, ColDef, _, IsColumnFunc, GridOptionsWrapper, GridOptions } from 'ag-grid-community';
 import '../../Utility/gbStyles.scss';
 import 'lodash';
 import FormModal from '../FormModal';
@@ -22,10 +21,12 @@ import { ITable } from '../../Models/ITable';
 import { IRowData } from '../../Models/RowData';
 import { isNullOrUndefined } from 'util';
 import { IPatchTable } from '../../Models/IPatchTable';
-import { QualityCheckFormType } from '../../Models/Enums';
+import { QualityCheckFormType } from '../../Models/QualityCheckFormType';
 import { IColumnSchema } from '../../Models/IColumnSchema';
 import { ServerResponse } from 'http';
 import { IServerResponse } from '../../Models/IServerResponse';
+import { IDelete } from '../../Models/IDelete';
+import { setTimeout } from 'timers';
 
 
 
@@ -39,6 +40,7 @@ const util = new Utilities();
 export default class GridLayout extends React.PureComponent<any, IState> {
     public util = new Utilities();
     constructor(props: any) {
+
         super(props);
         this.state = {
             gridOptions: {
@@ -57,7 +59,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     //  newValueHandler: this.compareValues.bind(this),
                     cellClass: this.onCellHigh.bind(this),
                     cellStyle: this.onCellStyleUpdate.bind(this),
-                    //cellRenderer: this.onCellDOMUpdate.bind(this),
+                    onCellDOMUpdate: this.onCellDOMUpdate.bind(this),
                 },
                 columnDefs: [],
                 rowData: null,
@@ -83,11 +85,89 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 qualityCheckList: []
             },
             qualityCheckList: [],
-            qualityCheckList_PatchItems: [],
+            qualityCheckList_MasterCpy: [],
+            qualityCheckList_PatchTable: {} as IPatchTable,
             identity: {
                 Name: null
-            }
+            },
+            isComponentLoaded: false,
         }
+    }
+
+    async componentDidMount() {
+        let tables = await this.getTables();
+        await this.setTables(tables).then((tableProp: any) => {
+            debugger;
+            this.onGridUpdate(tableProp.name, tableProp.type);
+        });
+    }
+
+
+
+
+
+
+    public render() {
+        return (
+            <div className="gridLayoutContainer">
+                <div className="row mb-1">
+                    <div className="col-md-6 form-group">
+                        <div className="input-group">
+                            <div className="input-group-prepend">
+                                <span className="input-group-text" >Tables</span>
+                            </div>
+                            <select className=" form-control col-md-6" placeholder="Select Table" onChange={this.onTableChange} id="tablesDrpDown">
+                                {
+                                    this.state && this.state.qualityCheckList && this.state.qualityCheckList.length > 0 && this.state.qualityCheckList.map((tableItem: ITable, index: number) => {
+                                        return (<option value={tableItem.name} data-type={tableItem.type} data-id={index + 1}> {tableItem.name}</option>);
+                                    })}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="col-md-6 form-group search-txtbox-container ext-right">
+                        <div className="input-group col-md-6 px-0">
+                            <input type="text" onInput={this.onQuickFilterChanged} className="form-control" placeholder="Search..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
+                            <div className="input-group-append d-block">
+                                <span className="input-group-text" >Search</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="row mb-2">
+                    <div className="col-md-6 px-0">
+                        <div className="d-inline-block col-md-2">
+
+                            <button className="btn btn-primary btn-action col" data-toggle="modal" data-target="#fullHeightModalRight"><FontAwesomeIcon icon={faPlus} /> New</button>
+                        </div>
+                        <div className="d-inline-block col-md-2">
+                            <button className="btn btn-primary btn-action col" onClick={this.onNewItem} >
+                                <FontAwesomeIcon icon={faPlus} /> New Item</button>
+                        </div>
+                        <div className="d-inline-block col-md-2">
+                            <button className="btn btn-primary btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
+                        </div>
+                    </div>
+                    <div className="col-md-6 px-0 ext-right">
+                        {Object.keys(this.state.qualityCheckList_PatchTable).length === 0 ? ""
+                            : <div className="d-inline-block col-md-2">
+                                <button className="btn btn-primary btn-action col" onClick={this.onSubmit}>({this.state.qualityCheckList_PatchTable.List.length}) <FontAwesomeIcon icon={faSave} /> Save </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div className="ag-theme-alpine gridLayoutInnerContainer">
+                    <AgGridReact
+                        columnDefs={this.state.gridOptions.columnDefs}
+                        rowData={this.state.gridOptions.rowData}
+                        gridOptions={this.state.gridOptions}
+                    >
+                    </AgGridReact>
+                </div>
+                <FormModal  ></FormModal>
+            </div>
+        );
     }
 
     onCellHigh = (params: any) => {
@@ -95,15 +175,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         return (params.value === 'something' ? 'my-class-3' : 'my-class-3');
     }
 
-    prepareCollDefs() {
-        let varColDef: ColDef = {
-            headerName: "test"
-        };
-        var objects = [{ 'a': 1 }, { 'b': 2 }];
-
-        var deep = _.cloneObject(this.state);
-        //console.log(deep[0] === objects[0]);
-    }
 
     getTables = async () => {
         let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.getTables;
@@ -135,8 +206,10 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 });
             });
             await this.setState({ qualityCheckList: tableArr }, () => {
-                resolve(tableArr[0]);
-                debugger
+                this.setState({ qualityCheckList_MasterCpy: tableArr }, () => {
+                    resolve(tableArr[0]);
+                    debugger
+                });
             });
         });
 
@@ -144,17 +217,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
 
 
-    getTableSchema = async (tblName: string, tableType: string) => {
-        let tableSchemaURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/GetTableSchema?tableName=" + tblName + "&schemaType=" + tableType;
-        return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
-            this.util.getDataFromDB(tableSchemaURL).then((tblSchemaList: any) => {
-                if (tblSchemaList && tblSchemaList.length > 0)
-                    resolve(tblSchemaList);
-                else
-                    reject("Get Table Schema Error");
-            });
-        });
-    }
 
     getTableData = async (tblName: string, tableType: string) => {
         let tblDataUrl = "https://localhost:44372/api/DynamicData/GetTableData?tableName=" + tblName + "&schemaType=" + tableType;
@@ -168,142 +230,100 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         });
     }
 
-    updateGridData = async (qc_data_res: IServerResponse) => {
-        //let varResDataArr: any[] = [];
-        //return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
-
-        //if (data && data[0] && data[0].data.length <= 0) {
-        //    clnObj.gridOptions.rowData = [];
-        //    clnObj.gridOptions.columnDefs = [];
-        //    reject("Update Grid Data Error");
-        //}
-        //let identity = data[0].data.filter((item: any) => { return item.isIdentity == true })[0];
-        //debugger
-        //if (!identity) {
-        //    alert("There is no Identity Column");
-        //}
-        //qc_data_res.schemas.forEach((rowItem: any) => {
-        //    varResDataArr.push({
-        //        Identity: (idenityObj && idenityObj.value) ? idenityObj.value : null,
-        //        data: rowItem.data
-        //    });
-        //});
-        //clnObj.data.qualityCheckList = varResDataArr;
-        //clnObj.data.dbList = data;
-        //clnObj.identity.Name = (identity && identity.columnName);
-
-        //let resCol = varResDataArr && varResDataArr[0].data.length > 0 && varResDataArr[0].data.map((colItem: any) => colItem.columnName);
 
 
-
-        ////Ag-Grid Data Config -- Start
-        //clnObj.gridOptions.rowData = this.setAgGridRowData(varResDataArr);
-        ////Ag-Grid Row Data Config -- End
-
-        ////Ag-Grid Col Data Config -- Start
-        //clnObj.gridOptions.columnDefs = this.setAgGridColData(resCol, varResDataArr);
-        ////Ag-Grid Col Data Config -- End
-
-
-
-        //    qc_data_res.gridOptions.rowData = data.tblData;
-        //    qc_data_res.gridOptions.columnDefs = colArr;
-        //    resolve(clnObj);
-        //});
-
-
-    }
-
-    setAgGridData = () => {
-
-
-
-        //this.setState({
-        //    general_DataCard: { ...this.state.general_DataCard, FSA: { ...this.state.general_DataCard.FSA, value: event.text, key: event.key } }
-        //})
-    }
-
-    setData = (tblName: string, tblData: any) => {
-
-        debugger
-
-    }
-
-    onGridUpdate = (tblName: string, tblType: string) => {
-
-        let clnQCObj: IState = _.cloneObject(this.state);
-        let varQualityCheckList: ITable[] = clnQCObj.qualityCheckList;
-        varQualityCheckList.map(qc_Item => {
+    inActiveQualityCheckList = (varQualityCheckList: ITable[]): ITable[] => {
+        varQualityCheckList.map((qc_Item: ITable) => {
             qc_Item.isActive = false;
             return qc_Item;
         });
-        let varQualityCheckItem: ITable = varQualityCheckList.filter((s: any) => s.name == tblName)[0];
-        //let clnQCGridOptionsObj: IState = _.cloneObject(this.state);
-        
+        return varQualityCheckList;
+    }
 
-        
+    getQualityCheckListTable = (tblName: string, varQualityCheckList: ITable[]): ITable => {
+        return varQualityCheckList.filter((s: any) => s.name == tblName).find(x => x !== undefined) || {} as ITable;
+    }
+
+    setQualityCheckListData = (varQualityCheckItem: ITable, varQualityCheckList: ITable[]) => {
+        debugger;
+        this.setState({
+            gridOptions: {
+                ...this.state.gridOptions,
+                rowData: varQualityCheckItem.serverResponse.data,
+                columnDefs: this.getAgGridColData(varQualityCheckItem.serverResponse.schemas)
+            },
+            qualityCheckList: varQualityCheckList
+        });
+    }
+
+    setQualityCheckListMasterData = (varQualityCheckItem: ITable, varQualityCheckList: ITable[]) => {
+        this.setState({
+            gridOptions: {
+                ...this.state.gridOptions,
+                rowData: varQualityCheckItem.serverResponse.data,
+                columnDefs: this.getAgGridColData(varQualityCheckItem.serverResponse.schemas)
+            },
+            qualityCheckList_MasterCpy: varQualityCheckList
+        });
+    }
+
+    setMasterQualityCheckList = (tblName: string, tblData: IServerResponse) => {
+        //let clnQCList_MasterCpy: ITable[] = this.state.qualityCheckList_MasterCpy;
+        //clnQCList_MasterCpy = this.inActiveQualityCheckList(clnQCList_MasterCpy);
+        //let clnQCItem_MasterCpy: ITable = this.getQualityCheckListTable(tblName, clnQCList_MasterCpy);
+        //clnQCItem_MasterCpy.isActive = true;
+        //clnQCItem_MasterCpy.isLoaded = true;
+        //clnQCItem_MasterCpy.serverResponse = { data: tblData.data, schemas: tblData.schemas };
+     //   this.setQualityCheckListMasterData(clnQCItem_MasterCpy, clnQCList_MasterCpy);
+    }
+
+
+
+    onGridUpdate = (tblName: string, tblType: string) => {
+        //let clnQCObj: IState =  this.state;
+
+        let varQualityCheckList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList));
+
+        let varQualityCheckMasterList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy));
+
+        varQualityCheckList = this.inActiveQualityCheckList(varQualityCheckList);
+        varQualityCheckMasterList = this.inActiveQualityCheckList(varQualityCheckMasterList);
+
+        let varQualityCheckItem: ITable = this.getQualityCheckListTable(tblName, varQualityCheckList);
+        let varQualityCheckMasterItem: ITable = this.getQualityCheckListTable(tblName, varQualityCheckMasterList);
+
         varQualityCheckItem.isActive = true;
-        debugger
-        if (varQualityCheckItem && !(varQualityCheckItem.isLoaded)) {
-            varQualityCheckItem.isLoaded = true;
-            this.getTableData(tblName, tblType).then((tblData: any) => {
-                varQualityCheckItem.serverResponse = { data: tblData.data, schemas: tblData.schemas };
-                clnQCObj.gridOptions.rowData = this.getAgGridColData(varQualityCheckItem.serverResponse.schemas);
-                clnQCObj.gridOptions.columnDefs = varQualityCheckItem.serverResponse.data;
+        varQualityCheckMasterItem.isActive = true;
+        
 
-                this.setState(clnQCObj, () => {
-                    console.log("Success");
-                });
+        debugger
+
+        if (varQualityCheckItem && !(varQualityCheckItem.isLoaded)) {
+
+            varQualityCheckItem.isLoaded = true;
+            varQualityCheckMasterItem.isLoaded = true;
+
+            this.getTableData(tblName, tblType).then((tblData: any) => {
+
+                varQualityCheckItem.serverResponse = { data: JSON.parse(JSON.stringify(tblData.data)), schemas: JSON.parse(JSON.stringify(tblData.schemas)) };
+                varQualityCheckMasterItem.serverResponse = { data: JSON.parse(JSON.stringify(tblData.data)), schemas: JSON.parse(JSON.stringify(tblData.schemas)) };
+                debugger
+                //this.setMasterQualityCheckList(tblName, Object.assign({}, tblData));
+                this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList })
+
+                this.setQualityCheckListData(varQualityCheckItem, varQualityCheckList);
+
             }).catch((error: any) => {
                 console.log(error);
             });
         }
         else {
-            clnQCObj.gridOptions.rowData = this.getAgGridColData(varQualityCheckItem.serverResponse.schemas);
-            clnQCObj.gridOptions.columnDefs = varQualityCheckItem.serverResponse.data;
-            this.setState( clnQCObj , () => {
-                console.log("Success");
-            });
+
+            this.setQualityCheckListData(varQualityCheckItem, varQualityCheckList);
+            this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList });
         }
     }
 
-
-    async componentDidMount() {
-        let tables = await this.getTables();
-        debugger;
-        await this.setTables(tables).then((tableProp: any) => {
-            debugger;
-            this.onGridUpdate(tableProp.name, tableProp.type);
-        });
-    }
-
-
-
-
-
-    setTableSchema = (tblName: string, tblSchemaList: any[], clnQualityCheckObj: any) => {
-        //let tblSchemaArr: ITableSchema[] = [];
-        //return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
-        //    tblSchemaList.forEach((schemaItem: any) => {
-        //        tblSchemaArr.push({
-        //            columnName: schemaItem.columnName,
-        //            dataType: schemaItem.dataType,
-        //            isIdentity: schemaItem.isIdentity,
-        //            isNullAble: schemaItem.isNull,
-        //            maximumLength: schemaItem.maximumLength,
-        //            tableName: schemaItem.tableName
-        //        });
-        //    });
-        //    debugger;
-        //    clnQualityCheckObj.qualityCheckList.filter((s: any) => s.Name == tblName).map((ff: any) => {
-        //        ff.Schema = tblSchemaArr;
-        //        ff.IsLoaded = true;
-        //        return ff;
-        //    });
-        //    resolve(clnQualityCheckObj);
-        //});
-
-    }
 
 
     setAgGridRowData = (varResDataArr: any[]) => {
@@ -311,7 +331,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         varResDataArr.forEach((cr_row: any) => {
             let obj = {};
             cr_row.data.forEach((cr_item: any) => {
-
 
                 Object.defineProperty(obj, cr_item.columnName, {
                     value: cr_item.value,
@@ -337,21 +356,150 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         return colArr;
     }
 
+    isColumnModified = (value: any, focusedColSchema: IColumnSchema, identityColumn: IColumnSchema, activeQCTable: ITable): boolean => {
+        debugger;
+        let currentCol = activeQCTable.serverResponse.data.filter(s => (s[identityColumn.columnName] == value[identityColumn.columnName]))[0];
+        if (currentCol) {
+            if (currentCol[focusedColSchema.columnName] == value[focusedColSchema.columnName])
+                return false;
+            else
+                return true
+        }
+        return false;
+    }
+
     onCellStyleUpdate = (params: any) => {
-        let ss = this.state.gridOptions.api.getFocusedCell();
-        return params.data[this.state.identity.Name] == 2 && params.column.colId == "CountryName" ? { backgroundColor: 'rgb(115,194,251,0.2)' } : "";
+        let focusedCell = this.state.gridOptions.api.getFocusedCell();
+        debugger
+        let activeQCMasterTable: ITable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
+        let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCMasterTable.serverResponse.schemas);
+        let focusedColumn: IColumnSchema = activeQCMasterTable.serverResponse.schemas.filter(s => s.columnName == params.column.colId)[0];
+        if (focusedColumn && identityColumn && params.value != undefined) {
+
+            let isValid: boolean = this.validateColumn(params.value, focusedColumn);
+            let isColumnModified: boolean = this.isColumnModified(params.data, focusedColumn, identityColumn, activeQCMasterTable);
+            let bgColor: string;
+            if (!isValid) {
+                bgColor = '#f5c6cb';
+            }
+            else if (params && params.column && (params.data[identityColumn.columnName].toString().toLowerCase().indexOf("tempid") >= 0)) {
+                bgColor = '#f8f9fa';
+            }
+            else if (isColumnModified) {
+                bgColor = '#cce5ff';
+            }
+            else {
+                bgColor = '';
+            }
+            return { backgroundColor: bgColor };
+        }
+    }
+    //validateDataTypeColumn
+    //validateDataTypeColumn = (value: string, focusedColumnSchema: IColumnSchema): boolean => {
+    //    if (focusedColumnSchema) {
+    //        if (focusedColumnSchema.dataType.toString().indexOf("char") >= 0) {
+    //            return value.length < focusedColumnSchema.maximumLength;
+    //        }
+    //        else
+    //            return true;
+    //    }
+    //    else {
+    //        return false;
+    //    }
+    //}
+
+    validateColumn = (value: string, focusedColSchema: IColumnSchema): boolean => {
+        if (focusedColSchema.isIdentity)
+            return true;
+        else if (focusedColSchema.dataType && focusedColSchema.dataType.length <= 0)
+            return false;
+        else if (focusedColSchema.isNullAble && value.toString().trim().length <= 0)
+            return false
+        else if (focusedColSchema.dataType.toString().toLocaleLowerCase().indexOf("char")) {
+            return this.validateDataType("char", value, focusedColSchema);
+        }
+
+        if (focusedColSchema.dataType.toString().toLocaleLowerCase().indexOf("date")) {
+            return this.validateDataType("date", value, focusedColSchema);
+        }
+
+        if (focusedColSchema.dataType.toString().toLocaleLowerCase().indexOf("time")) {
+            return this.validateDataType("time", value, focusedColSchema);
+        }
+        else {
+            return this.validateDataType("number", value, focusedColSchema);
+        }
+
+
 
     }
 
+    getDateRegEx() {
+        //return new RegExp("(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})");
+    }
+
+    validateDataType = (dataType: string, value: string, focusedColSchema: IColumnSchema): boolean => {
+
+
+        let isValid = true;
+
+        switch (dataType) {
+            case "char":
+                return value.length <= focusedColSchema.maximumLength || focusedColSchema.maximumLength == 0;
+            case "date":
+                return true;
+            case "time":
+                return true;
+            case "number":
+            case "int":
+            case "smallint":
+            case "bigint":
+            case "float":
+            case "decimal":
+                if (parseInt(value) > -(2147483648) && parseInt(value) < (2147483648)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            default:
+                return false;
+        }
+
+    }
+
+
+
+
+
+
+
     onCellDOMUpdate = (params: any) => {
-        debugger;
+
         return params.value;
     }
 
     onTableChange = (eve: any) => {
+        debugger
         let tblName: string = eve.target.value;
         let tblType: string = eve.target.options[eve.target.options.selectedIndex].getAttribute('data-type');
-        this.onGridUpdate(tblName, tblType);
+        let test: any = document.getElementById("tablesDrpDown");
+        let tt = this.getActiveTable(this.state.qualityCheckList);
+        if (this.state.qualityCheckList_PatchTable && this.state.qualityCheckList_PatchTable.List && this.state.qualityCheckList_PatchTable.List.length > 0) {
+            if (window.confirm("Do you want to discard the changes ?")) {
+                this.setState({ qualityCheckList_PatchTable: {} as IPatchTable }, () => {
+                    this.onGridUpdate(tblName, tblType);
+                });
+            }
+
+            else {
+                test.value = tt.name;
+            }
+        }
+        else {
+            this.onGridUpdate(tblName, tblType);
+        }
+
+
 
     }
 
@@ -360,101 +508,141 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     }
 
     getIdentityColumn = (tblSchemaArr: IColumnSchema[]): IColumnSchema => {
-        return tblSchemaArr.filter(s => s.isIdentity == true).find(x => x !== undefined) || {} as IColumnSchema;
+        return tblSchemaArr.filter(s => s.isIdentity == true)[0];
     }
 
     getDataModel = (tblSchemaArr: IColumnSchema[]): any => {
         let dataObj = {};
         tblSchemaArr.forEach((schemaItem: IColumnSchema) => {
             Object.defineProperty(dataObj, schemaItem.columnName, {
-                value: schemaItem.isIdentity ? "TempId" + Math.floor(Math.random() * (9999 - 1) + 1) : null
+                value: schemaItem.isIdentity ? "TempId" + Math.floor(Math.random() * (9999 - 1) + 1) : "",
+                writable: true,
+                enumerable: true,
+                configurable: true
             });
         });
         return dataObj;
     }
 
     getTableSchemaModel = () => {
-        
-        debugger;
+
+        ;
 
         //return dataArr;
     }
 
     onNewItem = () => {
-        let varQualityCheckList: ITable[] = this.state.qualityCheckList
+        let clObj: IState = Object.assign({}, this.state);
+        let varQualityCheckList: ITable[] = clObj.qualityCheckList;
         let activeQualityCheckTable: ITable = this.getActiveTable(varQualityCheckList);
+        activeQualityCheckTable.isActive = true;
         let dataObj: any = this.getDataModel(activeQualityCheckTable.serverResponse.schemas);
         activeQualityCheckTable.serverResponse.data.unshift(dataObj);
-        this.setState({ qualityCheckList: varQualityCheckList }, () => {
+        this.setState(prevState => ({
+            ...prevState,
+            gridOptions: {
+                ...prevState.gridOptions,
+                rowData: [],
+                columnDefs: []
+            },
+            qualityCheckList: clObj.qualityCheckList
+        }), () => {
             this.onGridUpdate(activeQualityCheckTable.name, activeQualityCheckTable.type);
         })
     }
+    onDelete = () => {
+
+        let qc_selectedRows = this.state.gridOptions.api.getSelectedRows();
+        if (qc_selectedRows && qc_selectedRows.length > 0 && window.confirm("Are you sure to delete " + qc_selectedRows.length + " items")) {
+            let activeQCTable: ITable = this.getActiveTable(this.state.qualityCheckList);
+            ;
+            let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCTable.serverResponse.schemas);
+
+
+            if (identityColumn && Object.keys(identityColumn).length > 0) {
+                let identityColumnName: string = identityColumn.columnName;
+                let clnStateObj: IState = this.state;
+
+                let clnQualityCheckList: ITable[] = clnStateObj.qualityCheckList;
+
+                let clnActiveQCTable: ITable = this.getActiveTable(clnQualityCheckList);
+
+                let columnSchema: IColumnSchema = this.getIdentityColumn(clnActiveQCTable.serverResponse.schemas);
+                if (columnSchema) {
+                    let delObj: IDelete = {
+                        TableName: clnActiveQCTable.name,
+                        Type: clnActiveQCTable.type,
+                        Data: qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") < 0)
+                    }
+                    let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.deleteItemFromDB;
+                    this.util.deleteDataFromDB(tablesURL, delObj).then(res => {
+                        qc_selectedRows.forEach((qc_row: any) => {
+                            activeQCTable.serverResponse.data = activeQCTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
+                        });
+                        this.onGridUpdate(activeQCTable.name, activeQCTable.type);
+                        alert("Successfully deleted");
+                    }).catch(error => {
+                        alert("error in deleting");
+                        let tempSelectedIdList = qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0);
+                        tempSelectedIdList.forEach((qc_row: any) => {
+                            activeQCTable.serverResponse.data = activeQCTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
+                        });
+                        this.onGridUpdate(activeQCTable.name, activeQCTable.type);
+                    });
+                }
+            }
+            else {
+                alert("There is no identity column. Cannot process the delete operation for this table");
+            }
+        }
+    }
 
     onSubmit = () => {
+        debugger
+
+        this.state.gridOptions.api.stopEditing();
+        let ss = this.state.gridOptions.api.getSelectedRows();
+        if (ss.length > 0)
+            this.onUpdatePatchItem({ data: ss[0] });
+
+
+
+        debugger
+        let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.patchItems;
+        this.util.patchDataToDB(tablesURL, this.state.qualityCheckList_PatchTable).then(res => {
+            debugger;
+            let identityColumnName: string = res.response.transExchange.identityColumnName;
+            let isResponseSuccessfull: boolean = res.response.transExchange.list.length > 0;
+            res.response.transExchange.list.forEach((s: any) => {
+                if (!s.isResponseSuccessfull) {
+                    isResponseSuccessfull = false;
+                }
+            });
+            if (isResponseSuccessfull) {
+                this.state.qualityCheckList_MasterCpy.filter(qc_item => qc_item.name == res.response.transExchange.tableName).map((d: any) => {
+                    d.serverResponse.data.push.apply(d.serverResponse.data, res.response.transExchange.list);
+                    return d;
+                });
+
+                this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList_MasterCpy: Object.assign([], this.state.qualityCheckList_MasterCpy) }, () => {
+                    this.setState({ qualityCheckList: Object.assign([], this.state.qualityCheckList_MasterCpy) }, () => {
+                        debugger
+                    });
+                });
+                alert("Successfully updated");
+            } else {
+                alert(res.response.message);
+                console.log(res.response.message);
+            }
+
+
+
+        }).catch(error => {
+            debugger
+        });
 
     }
 
-
-    public render() {
-        return (
-            <div className="gridLayoutContainer">
-                <div className="row mb-1">
-                    <div className="col-md-6 form-group">
-                        <div className="input-group">
-                            <div className="input-group-prepend">
-                                <span className="input-group-text" >Tables</span>
-                            </div>
-                            <select className=" form-control col-md-6" placeholder="Select Table" onChange={this.onTableChange}>
-                                {
-                                    this.state.qualityCheckList.map((tableItem: ITable) => {
-                                        return (<option value={tableItem.name} data-type={tableItem.type}> {tableItem.name}</option>);
-                                    })}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="col-md-6 form-group search-txtbox-container ext-right">
-                        <div className="input-group col-md-6 px-0">
-                            <input type="text" onInput={this.onQuickFilterChanged} className="form-control" placeholder="Search..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
-                            <div className="input-group-append d-block">
-                                <span className="input-group-text" >Search</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="row mb-2">
-                    <div className="col-md-6 px-0">
-                        <div className="d-inline-block col-md-2">
-
-                            <button className="btn btn-primary btn-action col" data-toggle="modal" data-target="#fullHeightModalRight"><FontAwesomeIcon icon={faPlus} /> New</button>
-                        </div>
-                        <div className="d-inline-block col-md-2">
-                            <button className="btn btn-primary btn-action col" onClick={this.onNewItem} >
-                                <FontAwesomeIcon icon={faPlus} /> New Item</button>
-                        </div>
-                        <div className="d-inline-block col-md-2">
-                            <button className="btn btn-primary btn-action col"><FontAwesomeIcon icon={faArchive} /> Delete</button>
-                        </div>
-                    </div>
-                    <div className="col-md-6 px-0 ext-right">
-                        <div className="d-inline-block col-md-2">
-                            <button className="btn btn-primary btn-action col"><FontAwesomeIcon icon={faSave} onClick={this.onSubmit} /> Save</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="ag-theme-alpine gridLayoutInnerContainer">
-                    <AgGridReact
-                        columnDefs={this.state.gridOptions.columnDefs}
-                        rowData={this.state.gridOptions.rowData}
-                        gridOptions={this.state.gridOptions}
-                    >
-                    </AgGridReact>
-                </div>
-                <FormModal  ></FormModal>
-            </div>
-        );
-    }
 
     getRowStyle(params: any) {
         if (params.node.rowIndex % 2 === 0) {
@@ -465,42 +653,64 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
 
 
-    onUpdateSaveItem = (eve: any) => {
-        //let varQualityCheckTables = this.state.qualityCheckList;
-        //let varIdenityName = this.state.identity.Name;
-        //let saveItemObj: IPatchTable = {};
-        //let varQualityCheckTable = varQualityCheckTables.filter((s: any) => s.IsActive == true)[0];
-        //varQualityCheckTable && varQualityCheckTable.Data.forEach((item: any) => {
-        //    let identityItem = item.data.filter((row: any) => row.isIdentity == true)[0];
-        //    if (identityItem && (identityItem.value == eve.data[varIdenityName])) {
-        //        item.data.filter((row: any) => row.columnName == eve.column.colId).map((rowItem: any) => { rowItem.value = eve.value; return rowItem; });
-        //        saveItemObj = {
-        //            TableName: varQualityCheckTable.Name,
-        //            IdentityColumnName: varIdenityName,
-        //            IdentityColumnValue: identityItem.value,
-        //            Data: item.data,
-        //            FormType: eve.data.Id.toString().toLowerCase().indexOf("tempid") >= 0 ? QualityCheckFormType.New : QualityCheckFormType.Edit
-        //        };
-        //    }
-        //});
-        //let varQualityCheckTables_PatchItems: any[] = this.state.qualityCheckList_PatchItems;
-        //let currentQualityCheckTable = varQualityCheckTables_PatchItems.filter(row => (row.TableName == varQualityCheckTable.Name) && (row.TableName == saveItemObj.IdentityColumnValue));
-        //if (currentQualityCheckTable && currentQualityCheckTable.length > 0) {
-        //    currentQualityCheckTable.map((tblItem: any) => {
-        //        tblItem = saveItemObj;
-        //        return tblItem;
-        //    });
-        //}
-        //else {
-        //    varQualityCheckTables_PatchItems.push(saveItemObj);
-        //}
-        //this.setState({ qualityCheckList: varQualityCheckTables, qualityCheckList_PatchItems: varQualityCheckTables_PatchItems }, () => {
-        //    debugger;
-        //});
+    onUpdatePatchItem = (eve: any) => {
+
+
+        let clnStateObj: IState = { ...this.state };
+
+        let clnQualityCheckList: ITable[] = clnStateObj.qualityCheckList;
+
+        let clnActiveQCTable: ITable = this.getActiveTable(clnQualityCheckList);
+
+        let clnQC_PatchTable: IPatchTable = clnStateObj.qualityCheckList_PatchTable;
+
+        let columnSchema: IColumnSchema = this.getIdentityColumn(clnActiveQCTable.serverResponse.schemas);
+        debugger
+        if (columnSchema) {
+            //clnActiveQCTable = clnActiveQCTable.serverResponse.data.filter(s => s[columnSchema.columnName] == eve.data[columnSchema.columnName]).map(d => { d = eve.data; return d; })[0]
+            clnQC_PatchTable.TableName = clnActiveQCTable.name;
+            clnQC_PatchTable.IdentityColumnName = columnSchema.columnName;
+            clnQC_PatchTable.Type = clnActiveQCTable.type;
+            clnQC_PatchTable.List = clnQC_PatchTable.List || [];
+
+            let clnQC_PatchTable_ListItem = clnQC_PatchTable.List.filter(item => {
+                return item.Data[columnSchema.columnName] == eve.data[columnSchema.columnName]
+            })[0];
+
+            let varFormType: QualityCheckFormType = eve.data[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0 ? QualityCheckFormType.New : QualityCheckFormType.Edit;
+
+            if (clnQC_PatchTable_ListItem) {
+
+                clnQC_PatchTable_ListItem.Data = eve.data;
+
+                clnQC_PatchTable_ListItem.FormType = varFormType;
+            }
+            else {
+                clnQC_PatchTable.List.push({
+                    Data: eve.data,
+                    FormType: varFormType,
+                    IsValid: false
+                });
+            }
+
+
+            this.setState(prevState => ({
+                ...prevState,
+                qualityCheckList_PatchTable: { ...clnQC_PatchTable }
+                //qualityCheckList: clnQualityCheckList
+            }), () => {
+
+            });
+
+        }
+        else {
+            alert("Identity Column Missing, Cannot Process further");
+        }
     }
 
     onCellValueChanged = (eve: any) => {
-        this.onUpdateSaveItem(eve);
+
+        this.onUpdatePatchItem(eve);
     }
 
 

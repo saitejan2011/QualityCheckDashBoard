@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GridLayoutReact.Models.DB;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,10 +7,12 @@ namespace GridLayoutReact.Models.MiddleWare
 {
     public class PatchRow:DBRow
     {
-        public int Id { get; set; }
 
+        public dynamic dynamicListItems { get; set; }
 
-        public object JSONData { get; set; }
+        public string IdentityColumnName { get; set; }
+
+        public List<TableSchema> TableSchemaList { get; set; }
 
     }
 }
