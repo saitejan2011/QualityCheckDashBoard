@@ -27,6 +27,7 @@ import { ServerResponse } from 'http';
 import { IServerResponse } from '../../Models/IServerResponse';
 import { IDelete } from '../../Models/IDelete';
 import { setTimeout } from 'timers';
+import { List } from 'lodash';
 
 
 
@@ -570,7 +571,11 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
         let qc_selectedRows = this.state.gridOptions.api.getSelectedRows();
         if (qc_selectedRows && qc_selectedRows.length > 0 && window.confirm("Are you sure to delete " + qc_selectedRows.length + " items")) {
-            let activeQCTable: ITable = this.getActiveTable(this.state.qualityCheckList);
+            let QCTableList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList));
+            let QCTableMasterList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy));
+            let QCTablePatchItem: IPatchTable = JSON.parse(JSON.stringify(this.state.qualityCheckList_PatchTable));
+            let activeQCTable: ITable = this.getActiveTable(QCTableList);
+            let activeQCMasterTable: ITable = this.getActiveTable(QCTableMasterList);
             ;
             let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCTable.serverResponse.schemas);
             
@@ -583,7 +588,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 let clnActiveQCTable: ITable = this.getActiveTable(clnQualityCheckList);
 
                 let columnSchema: IColumnSchema = this.getIdentityColumn(clnActiveQCTable.serverResponse.schemas);
-                debugger;
+                
                 if (columnSchema) {
                     let delObj: IDelete = {
                         TableName: clnActiveQCTable.name,
@@ -595,8 +600,25 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                         qc_selectedRows.forEach((qc_row: any) => {
                             activeQCTable.serverResponse.data = activeQCTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
                         });
-                        this.onGridUpdate(activeQCTable.name, activeQCTable.type);
-                        alert("Successfully deleted");
+                        qc_selectedRows.forEach((qc_row: any) => {
+                            activeQCMasterTable.serverResponse.data = activeQCMasterTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
+                        });
+                        debugger;
+                        QCTablePatchItem.List.forEach((qcp_row: any,index:any,object:any) => {
+                            let qpc_rowCount:any[] =qc_selectedRows.filter((row:any) => qcp_row.Data[identityColumnName] == row[identityColumnName]);
+                            if (qpc_rowCount.length > 0) {
+                                object.splice(index, 1);
+                            }
+                        });
+                        if (QCTablePatchItem.List && QCTablePatchItem.List.length <= 0) {
+                            QCTablePatchItem = {} as IPatchTable;
+                        }
+
+                        this.setState({ qualityCheckList: QCTableList, qualityCheckList_MasterCpy: QCTableMasterList, qualityCheckList_PatchTable: QCTablePatchItem }, () => {
+                            this.onGridUpdate(activeQCTable.name, activeQCTable.type);
+                            alert("Successfully deleted");
+                        });
+                        
                     }).catch(error => {
                         alert("error in deleting");
                         let tempSelectedIdList = qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0);
