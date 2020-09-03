@@ -583,6 +583,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 let clnActiveQCTable: ITable = this.getActiveTable(clnQualityCheckList);
 
                 let columnSchema: IColumnSchema = this.getIdentityColumn(clnActiveQCTable.serverResponse.schemas);
+                debugger;
                 if (columnSchema) {
                     let delObj: IDelete = {
                         TableName: clnActiveQCTable.name,
@@ -645,7 +646,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList_MasterCpy: JSON.parse(JSON.stringify( varMaster)) }, () => {
                     this.setState({ qualityCheckList: JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy)) }, () => {
                         debugger
-                        this.onGridUpdate(activeTable.name, activeTable.type);
+                        //this.onGridUpdate(activeTable.name, activeTable.type);
                     });
                 });
                 alert("Successfully updated");
