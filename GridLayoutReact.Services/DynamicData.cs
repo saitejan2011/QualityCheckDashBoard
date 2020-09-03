@@ -266,7 +266,7 @@ namespace GridLayoutReact.Services
             {
 
 
-                listObj.Add(new List() { Data = result, FormType = formType, IsResponseSuccessfull = false });
+                listObj.Add(new List() { Data = result, FormType = formType, IsResponseSuccessfull = false, Message =ex.Message.ToString()});
             }
 
             return listObj;
@@ -313,9 +313,12 @@ namespace GridLayoutReact.Services
 
                         var tblKeys = editRowObj.TableSchemaList.Select(schma => schma.ColumnName).ToList();
 
-                        listObj = GetOutputExecutionResult(cmd, tblKeys, result, "NEW");
+                        listObj = GetOutputExecutionResult(cmd, tblKeys, result, "EDIT");
 
                     }
+                    if(listObj.Where(s => s.IsResponseSuccessfull == false).ToList().Count>0)
+                    return new Response() { IsResponseSuccess = false, Message = listObj.Where(s=>s.IsResponseSuccessfull==false).FirstOrDefault().Message, Result = listObj };
+                    else
                     return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
                 }
             }

@@ -29,3 +29,25 @@
     border:1px solid red;
     background:green;
 }
+
+.ag-header-viewport {
+    border-bottom: 4px solid #fbce07;
+}
+
+.ag-theme-alpine .ag-header{
+    border-bottom:none;
+}
+
+.shell-btn {
+    background: #fbce07;
+    border: #fbce07;
+    color: black;
+
+    /*.fa-archive {
+        color: red;
+    }
+
+    .fa-save{
+        color:forestgreen;
+    }*/
+}

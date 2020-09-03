@@ -63,6 +63,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 },
                 columnDefs: [],
                 rowData: null,
+                editType: 'fullRow',
                 enableSorting: true,
                 pagination: true,
                 paginationPageSize: 30,
@@ -79,6 +80,11 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                         return params.node.rowIndex % 2 != 0;
                     },
                 },
+                getRowStyle : function (params:any) {
+                    if (params.node.rowIndex % 2 === 0) {
+                        return { background: 'red' };
+                    }
+                }
             },
             data: {
                 dbList: [],
@@ -97,7 +103,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     async componentDidMount() {
         let tables = await this.getTables();
         await this.setTables(tables).then((tableProp: any) => {
-            debugger;
+            
             this.onGridUpdate(tableProp.name, tableProp.type);
         });
     }
@@ -136,22 +142,22 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
                 <div className="row mb-2">
                     <div className="col-md-6 px-0">
-                        <div className="d-inline-block col-md-2">
+                        {/*   <div className="d-inline-block col-md-2">
 
                             <button className="btn btn-primary btn-action col" data-toggle="modal" data-target="#fullHeightModalRight"><FontAwesomeIcon icon={faPlus} /> New</button>
-                        </div>
+                        </div>*/}
                         <div className="d-inline-block col-md-2">
-                            <button className="btn btn-primary btn-action col" onClick={this.onNewItem} >
+                            <button className="btn shell-btn btn-action col" onClick={this.onNewItem} >
                                 <FontAwesomeIcon icon={faPlus} /> New Item</button>
                         </div>
                         <div className="d-inline-block col-md-2">
-                            <button className="btn btn-primary btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
+                            <button className="btn shell-btn btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
                         </div>
                     </div>
                     <div className="col-md-6 px-0 ext-right">
                         {Object.keys(this.state.qualityCheckList_PatchTable).length === 0 ? ""
                             : <div className="d-inline-block col-md-2">
-                                <button className="btn btn-primary btn-action col" onClick={this.onSubmit}>({this.state.qualityCheckList_PatchTable.List.length}) <FontAwesomeIcon icon={faSave} /> Save </button>
+                                <button className="btn shell-btn btn-action col" onClick={this.onSubmit}>({this.state.qualityCheckList_PatchTable.List.length}) <FontAwesomeIcon icon={faSave} /> Save </button>
                             </div>
                         }
                     </div>
@@ -162,6 +168,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                         columnDefs={this.state.gridOptions.columnDefs}
                         rowData={this.state.gridOptions.rowData}
                         gridOptions={this.state.gridOptions}
+                        stopEditingWhenGridLosesFocus={true}
                     >
                     </AgGridReact>
                 </div>
@@ -191,7 +198,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     setTables = async (tables: any[]) => {
         let tableArr: ITable[] = [];
         return new Promise<any>(async (resolve: (items: any) => void, reject: (error: any) => void): Promise<void> => {
-            debugger
+            
             if (tables && tables.length <= 0) {
                 reject("Set Table Error");
             }
@@ -208,7 +215,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             await this.setState({ qualityCheckList: tableArr }, () => {
                 this.setState({ qualityCheckList_MasterCpy: tableArr }, () => {
                     resolve(tableArr[0]);
-                    debugger
+                    
                 });
             });
         });
@@ -245,7 +252,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     }
 
     setQualityCheckListData = (varQualityCheckItem: ITable, varQualityCheckList: ITable[]) => {
-        debugger;
+        
         this.setState({
             gridOptions: {
                 ...this.state.gridOptions,
@@ -296,7 +303,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         varQualityCheckMasterItem.isActive = true;
         
 
-        debugger
+        
 
         if (varQualityCheckItem && !(varQualityCheckItem.isLoaded)) {
 
@@ -307,7 +314,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
                 varQualityCheckItem.serverResponse = { data: JSON.parse(JSON.stringify(tblData.data)), schemas: JSON.parse(JSON.stringify(tblData.schemas)) };
                 varQualityCheckMasterItem.serverResponse = { data: JSON.parse(JSON.stringify(tblData.data)), schemas: JSON.parse(JSON.stringify(tblData.schemas)) };
-                debugger
+                
                 //this.setMasterQualityCheckList(tblName, Object.assign({}, tblData));
                 this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList })
 
@@ -357,7 +364,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     }
 
     isColumnModified = (value: any, focusedColSchema: IColumnSchema, identityColumn: IColumnSchema, activeQCTable: ITable): boolean => {
-        debugger;
+        
         let currentCol = activeQCTable.serverResponse.data.filter(s => (s[identityColumn.columnName] == value[identityColumn.columnName]))[0];
         if (currentCol) {
             if (currentCol[focusedColSchema.columnName] == value[focusedColSchema.columnName])
@@ -370,12 +377,11 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     onCellStyleUpdate = (params: any) => {
         let focusedCell = this.state.gridOptions.api.getFocusedCell();
-        debugger
         let activeQCMasterTable: ITable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
+        debugger
         let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCMasterTable.serverResponse.schemas);
         let focusedColumn: IColumnSchema = activeQCMasterTable.serverResponse.schemas.filter(s => s.columnName == params.column.colId)[0];
         if (focusedColumn && identityColumn && params.value != undefined) {
-
             let isValid: boolean = this.validateColumn(params.value, focusedColumn);
             let isColumnModified: boolean = this.isColumnModified(params.data, focusedColumn, identityColumn, activeQCMasterTable);
             let bgColor: string;
@@ -383,15 +389,18 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 bgColor = '#f5c6cb';
             }
             else if (params && params.column && (params.data[identityColumn.columnName].toString().toLowerCase().indexOf("tempid") >= 0)) {
-                bgColor = '#f8f9fa';
+                bgColor = '#cce5ff';
             }
             else if (isColumnModified) {
-                bgColor = '#cce5ff';
+                bgColor = 'rgba(23,162,184,0.2)';
             }
             else {
                 bgColor = '';
             }
-            return { backgroundColor: bgColor };
+            return { backgroundColor: bgColor, border: '.0625rem solid #e8e8e8', borderTop: 'none' };
+        }
+        else {
+            return { border: '.0625rem solid #e8e8e8',borderTop:'none' };
         }
     }
     //validateDataTypeColumn
@@ -479,7 +488,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     }
 
     onTableChange = (eve: any) => {
-        debugger
+        
         let tblName: string = eve.target.value;
         let tblType: string = eve.target.options[eve.target.options.selectedIndex].getAttribute('data-type');
         let test: any = document.getElementById("tablesDrpDown");
@@ -536,19 +545,26 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         let varQualityCheckList: ITable[] = clObj.qualityCheckList;
         let activeQualityCheckTable: ITable = this.getActiveTable(varQualityCheckList);
         activeQualityCheckTable.isActive = true;
-        let dataObj: any = this.getDataModel(activeQualityCheckTable.serverResponse.schemas);
-        activeQualityCheckTable.serverResponse.data.unshift(dataObj);
-        this.setState(prevState => ({
-            ...prevState,
-            gridOptions: {
-                ...prevState.gridOptions,
-                rowData: [],
-                columnDefs: []
-            },
-            qualityCheckList: clObj.qualityCheckList
-        }), () => {
-            this.onGridUpdate(activeQualityCheckTable.name, activeQualityCheckTable.type);
-        })
+        let identityColumn = this.getIdentityColumn(activeQualityCheckTable.serverResponse.schemas);
+        
+        if (identityColumn) {
+            let dataObj: any = this.getDataModel(activeQualityCheckTable.serverResponse.schemas);
+            activeQualityCheckTable.serverResponse.data.unshift(dataObj);
+            this.setState(prevState => ({
+                ...prevState,
+                gridOptions: {
+                    ...prevState.gridOptions,
+                    rowData: [],
+                    columnDefs: []
+                },
+                qualityCheckList: clObj.qualityCheckList
+            }), () => {
+                this.onGridUpdate(activeQualityCheckTable.name, activeQualityCheckTable.type);
+            });
+        }
+        else {
+            alert("As There is not identity column present you cannot create an item");
+        }
     }
     onDelete = () => {
 
@@ -557,8 +573,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             let activeQCTable: ITable = this.getActiveTable(this.state.qualityCheckList);
             ;
             let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCTable.serverResponse.schemas);
-
-
+            
             if (identityColumn && Object.keys(identityColumn).length > 0) {
                 let identityColumnName: string = identityColumn.columnName;
                 let clnStateObj: IState = this.state;
@@ -598,19 +613,17 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     }
 
     onSubmit = () => {
-        debugger
+        
 
         this.state.gridOptions.api.stopEditing();
         let ss = this.state.gridOptions.api.getSelectedRows();
-        if (ss.length > 0)
-            this.onUpdatePatchItem({ data: ss[0] });
+        //if (ss.length > 0)
+        //    this.onUpdatePatchItem({ data: ss[0] });
 
-
-
-        debugger
+        debugger        
         let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.patchItems;
         this.util.patchDataToDB(tablesURL, this.state.qualityCheckList_PatchTable).then(res => {
-            debugger;
+            
             let identityColumnName: string = res.response.transExchange.identityColumnName;
             let isResponseSuccessfull: boolean = res.response.transExchange.list.length > 0;
             res.response.transExchange.list.forEach((s: any) => {
@@ -618,15 +631,21 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     isResponseSuccessfull = false;
                 }
             });
+            
+            let varMaster: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy));
             if (isResponseSuccessfull) {
-                this.state.qualityCheckList_MasterCpy.filter(qc_item => qc_item.name == res.response.transExchange.tableName).map((d: any) => {
-                    d.serverResponse.data.push.apply(d.serverResponse.data, res.response.transExchange.list);
+                varMaster.filter(qc_item => qc_item.name == res.response.transExchange.tableName).forEach((d: any) => {
+                    res.response.transExchange.list.forEach((item: any) => { 
+                        d.serverResponse.data.unshift(item.data);
+                    })
                     return d;
                 });
-
-                this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList_MasterCpy: Object.assign([], this.state.qualityCheckList_MasterCpy) }, () => {
-                    this.setState({ qualityCheckList: Object.assign([], this.state.qualityCheckList_MasterCpy) }, () => {
+                debugger
+                let activeTable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
+                this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList_MasterCpy: JSON.parse(JSON.stringify( varMaster)) }, () => {
+                    this.setState({ qualityCheckList: JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy)) }, () => {
                         debugger
+                        this.onGridUpdate(activeTable.name, activeTable.type);
                     });
                 });
                 alert("Successfully updated");
@@ -638,7 +657,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
 
         }).catch(error => {
-            debugger
+            
         });
 
     }
@@ -665,7 +684,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         let clnQC_PatchTable: IPatchTable = clnStateObj.qualityCheckList_PatchTable;
 
         let columnSchema: IColumnSchema = this.getIdentityColumn(clnActiveQCTable.serverResponse.schemas);
-        debugger
+        
         if (columnSchema) {
             //clnActiveQCTable = clnActiveQCTable.serverResponse.data.filter(s => s[columnSchema.columnName] == eve.data[columnSchema.columnName]).map(d => { d = eve.data; return d; })[0]
             clnQC_PatchTable.TableName = clnActiveQCTable.name;
@@ -719,6 +738,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         console.log('Sai Teja' + eve);
         this.state.gridOptions.api = eve.api;
         this.state.gridOptions.columnApi = eve.columnApi;
+        eve.api.sizeColumnsToFit();
         //  this.state.gridOptions.api.selectAll();
         this.setState({ gridOptions: this.state.gridOptions });
     }

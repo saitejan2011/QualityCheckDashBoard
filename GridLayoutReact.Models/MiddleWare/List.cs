@@ -11,6 +11,8 @@ namespace GridLayoutReact.Models.MiddleWare
 
         public bool IsResponseSuccessfull { get; set; }
 
+        public string Message { get; set; }
+
     }
     public enum QualityCheckFormType
     {
