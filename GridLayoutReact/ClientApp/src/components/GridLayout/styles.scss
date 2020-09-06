@@ -43,11 +43,17 @@
     border: #fbce07;
     color: black;
 
-    /*.fa-archive {
-        color: red;
+    .fa-archive {
+        color: orangered;
     }
 
-    .fa-save{
-        color:forestgreen;
-    }*/
+    .fa-save {
+        color: forestgreen;
+    }
+
+    
 }
+.btn-container{
+min-width: 138px;
+    margin-bottom: 2px;
+    }

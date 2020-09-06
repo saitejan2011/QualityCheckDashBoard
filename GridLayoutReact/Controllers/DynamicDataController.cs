@@ -53,7 +53,7 @@ namespace GridLayoutReact.Controllers
             if(response.IsResponseSuccess)
             return Ok(new { Result = "Saved", Response= response });
             else
-            return NotFound(new { Result = "something went wrong" });
+                return Ok(new { Result = response.Message, Response = response });
         }
 
         [HttpPut]

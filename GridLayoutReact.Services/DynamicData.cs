@@ -226,7 +226,7 @@ namespace GridLayoutReact.Services
 
                         var tblKeys = rowObj.TableSchemaList.Select(schma => schma.ColumnName).ToList();
 
-                        listObj = GetOutputExecutionResult(cmd, tblKeys, result, "EDIT");
+                        listObj.AddRange(GetOutputExecutionResult(cmd, tblKeys, result, "NEW"));
                     }
                     return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
 
@@ -313,7 +313,7 @@ namespace GridLayoutReact.Services
 
                         var tblKeys = editRowObj.TableSchemaList.Select(schma => schma.ColumnName).ToList();
 
-                        listObj = GetOutputExecutionResult(cmd, tblKeys, result, "EDIT");
+                        listObj.AddRange(GetOutputExecutionResult(cmd, tblKeys, result, "EDIT"));
 
                     }
                     if(listObj.Where(s => s.IsResponseSuccessfull == false).ToList().Count>0)
@@ -379,9 +379,10 @@ namespace GridLayoutReact.Services
 
         public Response PatchItems(TransceivalExchange clientPatchRequestObj)
         {
+            Response responseObj= new Response();
             try
             {
-                Response responseObj;
+                
 
                 string tableName = clientPatchRequestObj.TableName.ToString();
                 string schemaType = clientPatchRequestObj.Type != null ? clientPatchRequestObj.Type.ToString() : string.Empty;
@@ -427,7 +428,7 @@ namespace GridLayoutReact.Services
                 {
                     return new Response() { IsResponseSuccess = false, Message = "There is no Identity column. Cannot proccess the action" };
                 }
-                return new Response() { IsResponseSuccess = isResponseValid, Message = "SUCCESS", TransExchange = transExchnageObj };
+                return new Response() { IsResponseSuccess = isResponseValid, Message = responseObj.Message.ToString(), TransExchange = transExchnageObj };
             }
             catch (Exception ex)
             {
