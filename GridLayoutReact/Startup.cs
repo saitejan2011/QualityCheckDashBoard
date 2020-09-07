@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace GridLayoutReact
 {
@@ -28,6 +29,11 @@ namespace GridLayoutReact
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddSingleton<IDynamicData, DynamicData>();
+
+
+            services.Configure<AppSettings>(this.Configuration.GetSection("AppSettings"));
+            services.AddSingleton(r => r.GetRequiredService<IOptions<AppSettings>>().Value);
+
 
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {

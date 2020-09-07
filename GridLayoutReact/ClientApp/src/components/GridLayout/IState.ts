@@ -8,8 +8,6 @@ export interface IState {
     qualityCheckList: ITable[];
     qualityCheckList_PatchTable: IPatchTable;
     qualityCheckList_MasterCpy: ITable[];
-    identity: any;
-    isComponentLoaded: boolean;
-
+    
 }
 

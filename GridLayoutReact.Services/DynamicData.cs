@@ -15,14 +15,20 @@ namespace GridLayoutReact.Services
 {
     public class DynamicData : IDynamicData
     {
-        private string ConnectionString = @"Data Source=(LocalDb)\LocalDBDemo;Initial Catalog=DonationDB;Integrated Security=True";
+        private readonly AppSettings _appSettings;
+        private readonly string _connectionString;
 
+        public DynamicData(AppSettings appSettings)
+        {
+            this._appSettings = appSettings;
+            this._connectionString = appSettings.ConnectionString;
+        }
 
         public List<Models.DB.Table> GetAllDBTables()
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
+                using (SqlConnection con = new SqlConnection(this._connectionString))
                 {
                     SqlCommand cmd = new SqlCommand("SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES ", con);
                     con.Open();
@@ -49,7 +55,7 @@ namespace GridLayoutReact.Services
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
+                using (SqlConnection con = new SqlConnection(this._connectionString))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = con;
@@ -107,7 +113,7 @@ namespace GridLayoutReact.Services
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
+                using (SqlConnection con = new SqlConnection(this._connectionString))
                 {
 
                     SqlCommand cmd = new SqlCommand();
@@ -157,7 +163,7 @@ namespace GridLayoutReact.Services
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
+                using (SqlConnection con = new SqlConnection(this._connectionString))
                 {
 
                     SqlCommand cmd = new SqlCommand();
@@ -204,7 +210,7 @@ namespace GridLayoutReact.Services
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
+                using (SqlConnection con = new SqlConnection(this._connectionString))
                 {
                     SqlCommand cmd = new SqlCommand();
                     con.Open();
@@ -278,7 +284,7 @@ namespace GridLayoutReact.Services
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(ConnectionString))
+                using (SqlConnection con = new SqlConnection(this._connectionString))
                 {
                     SqlCommand cmd = new SqlCommand();
                     con.Open();
@@ -344,7 +350,7 @@ namespace GridLayoutReact.Services
                 if (identityColumn != null && delItemList.Count > 0)
                 {
 
-                    using (SqlConnection con = new SqlConnection(ConnectionString))
+                    using (SqlConnection con = new SqlConnection(this._connectionString))
                     {
                         SqlCommand cmd = new SqlCommand();
                         con.Open();

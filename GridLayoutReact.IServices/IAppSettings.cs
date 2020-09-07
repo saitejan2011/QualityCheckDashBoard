@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GridLayoutReact.Services
+namespace GridLayoutReact.IServices
 {
-    class DBConnections
+    public interface IAppSettings
     {
     }
 }

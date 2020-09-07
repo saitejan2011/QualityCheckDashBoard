@@ -25,7 +25,10 @@ namespace GridLayoutReact.Controllers
         public DynamicDataController(IDynamicData dynamicData)
         {
             _dynamicData = dynamicData;
+
         }
+
+        
 
         [HttpGet]
         public List<Models.DB.Table> GetTables()
@@ -62,6 +65,7 @@ namespace GridLayoutReact.Controllers
             return _dynamicData.DeleteItemFromDB(delRowObj);
         }
 
+        
 
 
 

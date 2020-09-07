@@ -117,11 +117,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             },
             qualityCheckList: [],
             qualityCheckList_MasterCpy: [],
-            qualityCheckList_PatchTable: {} as IPatchTable,
-            identity: {
-                Name: null
-            },
-            isComponentLoaded: false,
+            qualityCheckList_PatchTable: {} as IPatchTable
+           
         }
     }
     scrambleAndRefreshAll = () => {
@@ -185,7 +182,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 <div className="row mb-2">
                     <div className="col-md-6 px-0">
                         {/*<div className="d-inline-block col-md-2">
-
                             <button className="btn btn-primary btn-action col" data-toggle="modal" data-target="#fullHeightModalRight"><FontAwesomeIcon icon={faPlus} /> New</button>
                         </div>*/}
                         <div className="d-inline-block col-md-2 btn-container">
@@ -220,7 +216,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     }
 
     onCellHigh = (params: any) => {
-
         return (params.value === 'something' ? 'my-class-3' : 'my-class-3');
     }
 
