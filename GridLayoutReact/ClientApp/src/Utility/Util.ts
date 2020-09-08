@@ -4,12 +4,12 @@ import { IDelete } from '../Models/IDelete';
 
 export  class Utilities {
 
-
+    ///<capitalizeFLetter> Capitalize first letter in string
     public capitalizeFLetter(inputValue: string): string {
         return inputValue && inputValue[0].toUpperCase() + inputValue.slice(1);
     }
 
-
+    ///<getDataFromDB> API- Get Data from DB
     public  getDataFromDB(url: string) {
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             let data;
@@ -31,12 +31,13 @@ export  class Utilities {
         });
     }
 
+    ///<patchDataToDB> API- Insert/Update data to DB
     public patchDataToDB(url: string,patchTable:IPatchTable) {
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             let data;
             axios.put(url,patchTable)
                 .then(response => {
-                    debugger
+                    
                     if (response && response.data && Object.keys(response.data).length <= 0) {
                         resolve([]);
                     }
@@ -53,12 +54,13 @@ export  class Utilities {
         });
     }
 
+    ///<deleteDataFromDB> API- Delete data from DB
     public deleteDataFromDB(url: string, delObj: IDelete) {
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             let data;
             axios.put(url, delObj)
                 .then(response => {
-                    debugger
+                    
                     if (response && response.data && Object.keys(response.data).length <= 0) {
                         resolve([]);
                     }

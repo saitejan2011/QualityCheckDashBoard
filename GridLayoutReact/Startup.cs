@@ -32,6 +32,7 @@ namespace GridLayoutReact
 
 
             services.Configure<AppSettings>(this.Configuration.GetSection("AppSettings"));
+
             services.AddSingleton(r => r.GetRequiredService<IOptions<AppSettings>>().Value);
 
 

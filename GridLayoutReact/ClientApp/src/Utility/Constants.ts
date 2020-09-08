@@ -1,7 +1,5 @@
 
 export const Constants: any = {
-     jsonSampleUrl: "https://raw.githubusercontent.com/ag-grid/ag-grid/master/grid-packages/ag-grid-docs/src/olympicWinnersSmall.json",
-    // jsonSampleUrl:"https://localhost:44372/api/DynamicData/GetTableData?tableName=Employees",
     hostURL:"https://localhost:44372/api",
     controller:{
         dynamicData:"DynamicData"
@@ -11,6 +9,14 @@ export const Constants: any = {
         getTableData: "GetTableData",
         patchItems: "PatchItems",
         deleteItemFromDB:"DeleteItemFromDB"
+    }
+    ,
+    bgColor: {
+        newItem: '#cce5ff',
+        modifiedItem: 'rgba(23,162,184,0.2)'
+    },
+    border: {
+        gridCell: '.0625rem solid #e8e8e8',
     }
 }
 

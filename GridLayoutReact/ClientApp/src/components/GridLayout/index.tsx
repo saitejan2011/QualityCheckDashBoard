@@ -2,13 +2,9 @@ import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-// import 'ag-grid-community/dist/styles/ag-theme-fresh.css';
 import './styles.scss';
 import { Constants } from '../../Utility/Constants'
 import { IState } from './IState';
-import axios from 'axios';
-import { parse } from 'path';
-import { ColumnAnimationService } from 'ag-grid-community/dist/lib/rendering/columnAnimationService';
 import { Column, ColDef, _, IsColumnFunc, GridOptionsWrapper, GridOptions } from 'ag-grid-community';
 import '../../Utility/gbStyles.scss';
 import 'lodash';
@@ -16,32 +12,20 @@ import FormModal from '../FormModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoffee, faPlus, faArchive, faSave } from '@fortawesome/free-solid-svg-icons'
 import { Utilities } from './../../Utility/Util';
-import { debug } from 'console';
 import { ITable } from '../../Models/ITable';
-import { IRowData } from '../../Models/RowData';
-import { isNullOrUndefined } from 'util';
 import { IPatchTable } from '../../Models/IPatchTable';
 import { QualityCheckFormType } from '../../Models/QualityCheckFormType';
 import { IColumnSchema } from '../../Models/IColumnSchema';
-import { ServerResponse } from 'http';
 import { IServerResponse } from '../../Models/IServerResponse';
 import { IDelete } from '../../Models/IDelete';
-import { setTimeout } from 'timers';
-import { List } from 'lodash';
-
-
-
-
 
 const util = new Utilities();
 
-
-
-
 export default class GridLayout extends React.PureComponent<any, IState> {
     public util = new Utilities();
+     
+    /// <constructor> Initializing State And Props
     constructor(props: any) {
-
         super(props);
         this.state = {
             gridOptions: {
@@ -58,7 +42,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     editable: true,
                     headerClass: "class-make",
                     //  newValueHandler: this.compareValues.bind(this),
-                    cellClass: this.onCellHigh.bind(this),
+                    cellClass: this.onCellClassUpdate.bind(this),
                     cellStyle: this.onCellStyleUpdate.bind(this),
                     onCellDOMUpdate: this.onCellDOMUpdate.bind(this),
                     floatingFilter: false,
@@ -96,7 +80,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 overlayLoadingTemplate:
                     '<span class="ag-overlay-loading-center">Please wait while your data is loading</span>',
                 overlayNoRowsTemplate:
-                    '<span style="padding: 10px;background: rgb(251 206 7 / 0.6);font-weight: bold;">No Data to display</span>',
+                    '<span style="padding: 10px;background: rgb(251 206 7 / 0.6);font-weight: bold;">No data to display</span>',
                 rowClassRules: {
                     'row-even': function (params: any) {
                         return params.node.rowIndex % 2 == 0;
@@ -104,16 +88,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     'row-odd': function (params: any) {
                         return params.node.rowIndex % 2 != 0;
                     },
-                },
-                getRowStyle: function (params: any) {
-                    if (params.node.rowIndex % 2 === 0) {
-                        return { background: 'red' };
-                    }
                 }
-            },
-            data: {
-                dbList: [],
-                qualityCheckList: []
             },
             qualityCheckList: [],
             qualityCheckList_MasterCpy: [],
@@ -121,14 +96,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
            
         }
     }
-    scrambleAndRefreshAll = () => {
-        let params = {
-            force: true
-        };
-    this.state.gridOptions.api.refreshCells(params);
-    
-    }
 
+    /// <componentDidMount> Initial API calls when component is loaded (GetTables).
     async componentDidMount() {
         this.state.gridOptions.api.showLoadingOverlay();
         let tables = await this.getTables();
@@ -139,19 +108,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         });
     }
 
-    onLoadingEnable = () => {
-        if (Math.floor(Math.random() * (3 - 1) + 1) == 1) {
-            this.state.gridOptions.api.showLoadingOverlay();
-        } else {
-            this.state.gridOptions.api.hideOverlay();
-        }
-    }
-
-
-
-
-
-
+    /// <render> rendering DOM.
     public render() {
         return (
             <div className="gridLayoutContainer">
@@ -169,7 +126,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                             </select>
                         </div>
                     </div>
-                    <div className="col-md-6 form-group search-txtbox-container ext-right">
+                    <div className="col-md-6 form-group search-txtbox-container ex-right">
                         <div className="input-group col-md-6 px-0">
                             <input type="text" onInput={this.onQuickFilterChanged} className="form-control" placeholder="Search..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
                             <div className="input-group-append d-block">
@@ -180,24 +137,28 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 </div>
 
                 <div className="row mb-2">
-                    <div className="col-md-6 px-0">
+                    <div className="col-md-12 col-sm-12  col-xs-12  d-flex">
                         {/*<div className="d-inline-block col-md-2">
                             <button className="btn btn-primary btn-action col" data-toggle="modal" data-target="#fullHeightModalRight"><FontAwesomeIcon icon={faPlus} /> New</button>
                         </div>*/}
-                        <div className="d-inline-block col-md-2 btn-container">
+                        <div className="btn-container">
                             <button className="btn shell-btn btn-action col" onClick={this.onNewItem} >
-                                <FontAwesomeIcon icon={faPlus} /> New Item</button>
+                                <FontAwesomeIcon icon={faPlus} /> New </button>
                         </div>
-                        <div className="d-inline-block col-md-2 btn-container">
-                            <button className="btn shell-btn btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
-                        </div>
-                    </div>
-                    <div className="col-md-6 px-0 ext-right btn-container">
+                        <div className="ext-right ext-right-container">
                         {Object.keys(this.state.qualityCheckList_PatchTable).length === 0 || this.state.qualityCheckList_PatchTable.List.length <= 0 ? ""
-                            : <div className="d-inline-block col-md-2">
+                            : <div className="btn-container ">
                                 <button className="btn shell-btn btn-action col" onClick={this.onSubmit}>({this.state.qualityCheckList_PatchTable.List.length}) <FontAwesomeIcon icon={faSave} /> Save </button>
                             </div>
                         }
+                        <div className=" btn-container ">
+                            <button className="btn shell-btn btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div className="col-md-6 px-0 ext-right btn-container">
+                       
                     </div>
                 </div>
 
@@ -215,12 +176,21 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         );
     }
 
-    onCellHigh = (params: any) => {
+    /// <scrambleAndRefreshAll> make active and udpate the grid values in case grid is not functioning properly.
+    private scrambleAndRefreshAll = () => {
+        let params = {
+            force: true
+        };
+        this.state.gridOptions.api.refreshCells(params);
+    }
+
+    /// <onCellHigh>  triggers when cell is updates, here we can add style classes dynamically.
+    private onCellClassUpdate = (params: any) => {
         return (params.value === 'something' ? 'my-class-3' : 'my-class-3');
     }
 
-
-    getTables = async () => {
+    /// <getTables>  API call gets all tables from DB.
+    private getTables = async () => {
         let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.getTables;
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             this.util.getDataFromDB(tablesURL).then(async (tables: any) => {
@@ -232,7 +202,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         });
     }
 
-    setTables = async (tables: any[]) => {
+    /// <setTables>  on Tables receive updates tables to the state.
+    private setTables = async (tables: any[]) => {
         let tableArr: ITable[] = [];
         return new Promise<any>(async (resolve: (items: any) => void, reject: (error: any) => void): Promise<void> => {
 
@@ -259,11 +230,10 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     }
 
-
-
-
-    getTableData = async (tblName: string, tableType: string) => {
-        let tblDataUrl = "https://localhost:44372/api/DynamicData/GetTableData?tableName=" + tblName + "&schemaType=" + tableType;
+    ///<getTableData> get Table Data along with its schema.
+    private getTableData = async (tblName: string, tableType: string) => {
+        
+        let tblDataUrl = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.getTableData+"?tableName=" + tblName + "&schemaType=" + tableType;
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             this.util.getDataFromDB(tblDataUrl).then((tblData: any) => {
                 if (tblData)
@@ -274,9 +244,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         });
     }
 
-
-
-    inActiveQualityCheckList = (varQualityCheckList: ITable[]): ITable[] => {
+    ///<inActiveQualityCheckList> Make all tables status to in active.
+    private inActiveQualityCheckList = (varQualityCheckList: ITable[]): ITable[] => {
         varQualityCheckList.map((qc_Item: ITable) => {
             qc_Item.isActive = false;
             return qc_Item;
@@ -284,12 +253,13 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         return varQualityCheckList;
     }
 
-    getQualityCheckListTable = (tblName: string, varQualityCheckList: ITable[]): ITable => {
+    ///<getQualityCheckListTable> returns active table from qualityCheckList.
+    private getQualityCheckListTable = (tblName: string, varQualityCheckList: ITable[]): ITable => {
         return varQualityCheckList.filter((s: any) => s.name == tblName).find(x => x !== undefined) || {} as ITable;
     }
 
-    setQualityCheckListData = (varQualityCheckItem: ITable, varQualityCheckList: ITable[]) => {
-
+    ///<setQualityCheckListData> updates qualityCheckList data to the state.
+    private setQualityCheckListData = (varQualityCheckItem: ITable, varQualityCheckList: ITable[]) => {
         this.setState({
             gridOptions: {
                 ...this.state.gridOptions,
@@ -306,30 +276,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         });
     }
 
-    setQualityCheckListMasterData = (varQualityCheckItem: ITable, varQualityCheckList: ITable[]) => {
-        this.setState({
-            gridOptions: {
-                ...this.state.gridOptions,
-                rowData: varQualityCheckItem.serverResponse.data,
-                columnDefs: this.getAgGridColData(varQualityCheckItem.serverResponse.schemas)
-            },
-            qualityCheckList_MasterCpy: varQualityCheckList
-        });
-    }
-
-    setMasterQualityCheckList = (tblName: string, tblData: IServerResponse) => {
-        //let clnQCList_MasterCpy: ITable[] = this.state.qualityCheckList_MasterCpy;
-        //clnQCList_MasterCpy = this.inActiveQualityCheckList(clnQCList_MasterCpy);
-        //let clnQCItem_MasterCpy: ITable = this.getQualityCheckListTable(tblName, clnQCList_MasterCpy);
-        //clnQCItem_MasterCpy.isActive = true;
-        //clnQCItem_MasterCpy.isLoaded = true;
-        //clnQCItem_MasterCpy.serverResponse = { data: tblData.data, schemas: tblData.schemas };
-        //   this.setQualityCheckListMasterData(clnQCItem_MasterCpy, clnQCList_MasterCpy);
-    }
-
-
-
-    onGridUpdate = (tblName: string, tblType: string) => {
+    ///<onGridUpdate> Updating grid data for both ag-grid & defines quality check list.
+    private onGridUpdate = (tblName: string, tblType: string) => {
         //let clnQCObj: IState =  this.state;
         this.state.gridOptions.api.showLoadingOverlay();
         let varQualityCheckList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList));
@@ -345,8 +293,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         varQualityCheckItem.isActive = true;
         
         varQualityCheckMasterItem.isActive = true;
-
-
 
 
         if (varQualityCheckItem && !(varQualityCheckItem.isLoaded)) {
@@ -365,40 +311,19 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 this.setQualityCheckListData(varQualityCheckItem, varQualityCheckList);
 
             }).catch((error: any) => {
-                console.log(error);
                 this.state.gridOptions.api.hideOverlay();
             });
         }
         else {
-
             this.setQualityCheckListData(varQualityCheckItem, varQualityCheckList);
             this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList });
         }
     }
 
-
-
-    setAgGridRowData = (varResDataArr: any[]) => {
-        let varRowDataArr: any[] = [];
-        varResDataArr.forEach((cr_row: any) => {
-            let obj = {};
-            cr_row.data.forEach((cr_item: any) => {
-
-                Object.defineProperty(obj, cr_item.columnName, {
-                    value: cr_item.value,
-                    writable: true,
-                    enumerable: true,
-                    configurable: true
-                });
-            });
-            varRowDataArr.push(obj);
-        });
-        return varRowDataArr;
-    }
-
-    getAgGridColData = (schemas: IColumnSchema[]): any[] => {
+    ///<getAgGridColData> Returns column dynamic column definition array.
+    private getAgGridColData = (schemas: IColumnSchema[]): ColDef[] => {
         let colArr: ColDef[] = [];
-        debugger
+        
         schemas.forEach((key: IColumnSchema) => {
             colArr.push({
                 headerName: util.capitalizeFLetter(key.columnName.trim()),
@@ -411,7 +336,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         return colArr;
     }
 
-    isColumnModified = (value: any, focusedColSchema: IColumnSchema, identityColumn: IColumnSchema, activeQCTable: ITable): boolean => {
+    ///<isColumnModified> Validates whether cell is modified or not.
+    private isColumnModified = (value: any, focusedColSchema: IColumnSchema, identityColumn: IColumnSchema, activeQCTable: ITable): boolean => {
 
         let currentCol = activeQCTable.serverResponse.data.filter(s => (s[identityColumn.columnName] == value[identityColumn.columnName]))[0];
         if (currentCol) {
@@ -423,11 +349,12 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         return false;
     }
 
-    onCellStyleUpdate = (params: any) => {
+    ///<onCellStyleUpdate> Triggers when cell value is changed. We can update cell style dyamically.
+    private onCellStyleUpdate = (params: any) => {
         
         let focusedCell = this.state.gridOptions.api.getFocusedCell();
         let activeQCMasterTable: ITable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
-        debugger
+        
         let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCMasterTable.serverResponse.schemas);
         let focusedColumn: IColumnSchema = activeQCMasterTable.serverResponse.schemas.filter(s => s.columnName == params.column.colId)[0];
         if (focusedColumn && identityColumn && params.value != undefined) {
@@ -435,7 +362,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             let isColumnModified: boolean = this.isColumnModified(params.data, focusedColumn, identityColumn, activeQCMasterTable);
             let bgColor: string;
             if (!isValid) {
-                //bgColor = '#f5c6cb';
                 bgColor = '';
             }
             else if (params && params.column && (params.data[identityColumn.columnName].toString().toLowerCase().indexOf("tempid") >= 0)) {
@@ -453,21 +379,9 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             return { border: '.0625rem solid #e8e8e8', borderTop: 'none' };
         }
     }
-    //validateDataTypeColumn
-    //validateDataTypeColumn = (value: string, focusedColumnSchema: IColumnSchema): boolean => {
-    //    if (focusedColumnSchema) {
-    //        if (focusedColumnSchema.dataType.toString().indexOf("char") >= 0) {
-    //            return value.length < focusedColumnSchema.maximumLength;
-    //        }
-    //        else
-    //            return true;
-    //    }
-    //    else {
-    //        return false;
-    //    }
-    //}
 
-    validateColumn = (value: string, focusedColSchema: IColumnSchema): boolean => {
+    ///<validateColumn> Validates column based on data type and returns its valid status.
+    private validateColumn = (value: string, focusedColSchema: IColumnSchema): boolean => {
         if (focusedColSchema.isIdentity)
             return true;
         else if (focusedColSchema.dataType && focusedColSchema.dataType.length <= 0)
@@ -488,16 +402,10 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         else {
             return this.validateDataType("number", value, focusedColSchema);
         }
-
-
-
     }
 
-    getDateRegEx() {
-        //return new RegExp("(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})");
-    }
-
-    validateDataType = (dataType: string, value: string, focusedColSchema: IColumnSchema): boolean => {
+    ///<validateDataType> Validates data type and returns its valid status.
+    private validateDataType = (dataType: string, value: string, focusedColSchema: IColumnSchema): boolean => {
 
 
         let isValid = true;
@@ -526,23 +434,19 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     }
 
-
-
-
-
-
-
-    onCellDOMUpdate = (params: any) => {
+    ///<onCellDOMUpdate> Triggers when cell value is changed. Here we can update DOM of the cell value.
+    private onCellDOMUpdate = (params: any) => {
 
         return params.value;
     }
 
-    onTableChange = (eve: any) => {
+    ///<onTableChange> Triggers when table value changes and calls the active tables to render.
+    private onTableChange = (eve: any) => {
 
         let tblName: string = eve.target.value;
         let tblType: string = eve.target.options[eve.target.options.selectedIndex].getAttribute('data-type');
-        let test: any = document.getElementById("tablesDrpDown");
-        let tt = this.getActiveTable(this.state.qualityCheckList);
+        let tblDrpDown: any = document.getElementById("tablesDrpDown");
+        let activeTbl = this.getActiveTable(this.state.qualityCheckList);
         if (this.state.qualityCheckList_PatchTable && this.state.qualityCheckList_PatchTable.List && this.state.qualityCheckList_PatchTable.List.length > 0) {
             if (window.confirm("Do you want to discard the changes ?")) {
                 this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList: JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy)) }, () => {
@@ -550,7 +454,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 });
             }
             else {
-                test.value = tt.name;
+                tblDrpDown.value = activeTbl.name;
             }
         }
         else {
@@ -561,15 +465,18 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     }
 
-    getActiveTable = (qualityCheckList: ITable[]): ITable => {
+    ///<getActiveTable> Returns the active table in the qualityCheckList state.
+    private getActiveTable = (qualityCheckList: ITable[]): ITable => {
         return qualityCheckList.filter((qc_Item: any) => qc_Item.isActive == true).find(x => x !== undefined) || {} as ITable;
     }
 
-    getIdentityColumn = (tblSchemaArr: IColumnSchema[]): IColumnSchema => {
+    ///<getIdentityColumn> Returns schema of identity column from the table.
+    private getIdentityColumn = (tblSchemaArr: IColumnSchema[]): IColumnSchema => {
         return tblSchemaArr.filter(s => s.isIdentity == true)[0];
     }
 
-    getDataModel = (tblSchemaArr: IColumnSchema[]): any => {
+    ///<getRowDataModel>  Here the function returns ag-grid data model based.
+    private getRowDataModel = (tblSchemaArr: IColumnSchema[]): any => {
         let dataObj = {};
         tblSchemaArr.forEach((schemaItem: IColumnSchema) => {
             Object.defineProperty(dataObj, schemaItem.columnName, {
@@ -582,14 +489,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         return dataObj;
     }
 
-    getTableSchemaModel = () => {
-
-        ;
-
-        //return dataArr;
-    }
-
-    onNewItem = () => {
+    ///<onNewItem> Triggers when onNewItem Btn clicked and appends new item row to the table.
+    private onNewItem = () => {
         let clObj: IState = Object.assign({}, this.state);
         let varQualityCheckList: ITable[] = clObj.qualityCheckList;
         let activeQualityCheckTable: ITable = this.getActiveTable(varQualityCheckList);
@@ -597,7 +498,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         let identityColumn = this.getIdentityColumn(activeQualityCheckTable.serverResponse.schemas);
 
         if (identityColumn) {
-            let dataObj: any = this.getDataModel(activeQualityCheckTable.serverResponse.schemas);
+            let dataObj: any = this.getRowDataModel(activeQualityCheckTable.serverResponse.schemas);
             activeQualityCheckTable.serverResponse.data.unshift(dataObj);
             this.setState(prevState => ({
                 ...prevState,
@@ -615,10 +516,12 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             alert("As There is not identity column present you cannot create an item");
         }
     }
-    onDelete = () => {
+
+    ///<onDelete> Triggers when delete btn clicked and deletes selected rows from the table.
+    private onDelete = () => {
 
         let qc_selectedRows = this.state.gridOptions.api.getSelectedRows();
-        if (qc_selectedRows && qc_selectedRows.length > 0 && window.confirm("Are you sure to delete " + qc_selectedRows.length + " items")) {
+        if (qc_selectedRows && qc_selectedRows.length > 0 && window.confirm("Are you sure want to delete selected item(s)")) {
             let QCTableList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList));
             let QCTableMasterList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy));
             let QCTablePatchItem: IPatchTable = JSON.parse(JSON.stringify(this.state.qualityCheckList_PatchTable));
@@ -642,20 +545,20 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                         Type: clnActiveQCTable.type,
                         Data: qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") < 0)
                     }
-                    debugger
+                    
 
                     let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.deleteItemFromDB;
                     if (delObj.Data && delObj.Data.length > 0) {
                         this.util.deleteDataFromDB(tablesURL, delObj).then(res => {
-                            debugger
+                            
                             activeQCTable = this.onQualityCheckItemDelete(qc_selectedRows, activeQCTable, identityColumnName);
                             activeQCMasterTable = this.onQualityCheckItemDelete(qc_selectedRows, activeQCMasterTable, identityColumnName);
                         }).catch(error => {
-                            debugger
+                            
                             alert("error in deleting");
 
                         }).finally(() => {
-                            debugger
+                            
                             this.onDeleteListUpdate(activeQCTable, activeQCMasterTable, QCTablePatchItem, columnSchema, qc_selectedRows, identityColumnName);
                             this.setDeleteOpsState(QCTableList, QCTableMasterList, QCTablePatchItem, activeQCTable).then(res => {
                                 this.onGridUpdate(activeQCTable.name, activeQCTable.type);
@@ -666,7 +569,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     else {
                         this.onDeleteListUpdate(activeQCTable, activeQCMasterTable, QCTablePatchItem, columnSchema, qc_selectedRows, identityColumnName);
                         this.setDeleteOpsState(QCTableList, QCTableMasterList, QCTablePatchItem, activeQCTable).then(res => {
-                            debugger
+                            
                             this.onGridUpdate(activeQCTable.name, activeQCTable.type);
                             alert("Successfully deleted");
                         });
@@ -679,16 +582,18 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         }
     }
 
-    onFilterLocalItems = (qc_selectedRows: any[], columnSchema: IColumnSchema, activeQCTable: ITable, identityColumnName: string) => {
-        debugger
+    ///<onFilterLocalItems> delete unsaved new items from the grid.
+    private onFilterLocalItems = (qc_selectedRows: any[], columnSchema: IColumnSchema, activeQCTable: ITable, identityColumnName: string) => {
+        
         let tempSelectedIdList = qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0);
         tempSelectedIdList.forEach((qc_row: any) => {
             activeQCTable.serverResponse.data = activeQCTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
         });
     }
 
-    setDeleteOpsState = (QCTableList: ITable[], QCTableMasterList: ITable[], QCTablePatchItem: IPatchTable, activeQCTable: ITable) => {
-        debugger
+    ///<setDeleteOpsState> updates state of deleted items from all qualityCheck related list .
+    private setDeleteOpsState = (QCTableList: ITable[], QCTableMasterList: ITable[], QCTablePatchItem: IPatchTable, activeQCTable: ITable) => {
+        
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             this.setState({ qualityCheckList: QCTableList, qualityCheckList_MasterCpy: QCTableMasterList, qualityCheckList_PatchTable: QCTablePatchItem }, () => {
                 resolve(this.state);
@@ -696,18 +601,20 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         });
     }
 
-    onQualityCheckItemDelete = (qc_selectedRows: any[], activeQCTable: ITable, identityColumnName: string) => {
+    ///<onQualityCheckItemDelete> delete quality check list row.
+    private onQualityCheckItemDelete = (qc_selectedRows: any[], activeQCTable: ITable, identityColumnName: string) => {
         qc_selectedRows.forEach((qc_row: any) => {
             activeQCTable.serverResponse.data = activeQCTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
         });
         return activeQCTable;
     }
 
-    onDeleteListUpdate = (activeQCTable: ITable, activeQCMasterTable: ITable, QCTablePatchItem: IPatchTable, columnSchema: IColumnSchema, qc_selectedRows: any[], identityColumnName: string) => {
+    ///<onDeleteListUpdate> updates deleted items of quality check list.
+    private onDeleteListUpdate = (activeQCTable: ITable, activeQCMasterTable: ITable, QCTablePatchItem: IPatchTable, columnSchema: IColumnSchema, qc_selectedRows: any[], identityColumnName: string) => {
 
         if (QCTablePatchItem && Object.keys(QCTablePatchItem).length > 0) {
             QCTablePatchItem = this.onQualityCheckPatchItemDelete(qc_selectedRows, QCTablePatchItem, identityColumnName);
-            debugger
+            
             if (QCTablePatchItem.List && QCTablePatchItem.List.length <= 0) {
                 QCTablePatchItem = {} as IPatchTable;
             }
@@ -715,7 +622,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         this.onFilterLocalItems(qc_selectedRows, columnSchema, activeQCTable, identityColumnName);
     }
 
-    onQualityCheckPatchItemDelete = (qc_selectedRows: any[], QCTablePatchItem: IPatchTable, identityColumnName: string) => {
+    ///<onQualityCheckPatchItemDelete> delete items from unsaved items.
+    private onQualityCheckPatchItemDelete = (qc_selectedRows: any[], QCTablePatchItem: IPatchTable, identityColumnName: string) => {
 
         let arr: number[] = [];
         QCTablePatchItem.List.forEach((qcp_row: any, index: number, object: any) => {
@@ -728,19 +636,18 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         while (i--) {
             QCTablePatchItem.List.splice(arr[i - 1], 1);
         }
-        debugger
+        
         return QCTablePatchItem;
     }
 
-    onSubmit = () => {
+    ///<onSubmit> Triggers when save btn clicked, submit the data to the DB.
+    private onSubmit = () => {
 
 
         this.state.gridOptions.api.stopEditing();
         let ss = this.state.gridOptions.api.getSelectedRows();
         //if (ss.length > 0)
         //    this.onUpdatePatchItem({ data: ss[0] });
-
-        debugger
         let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.patchItems;
         this.util.patchDataToDB(tablesURL, this.state.qualityCheckList_PatchTable).then(res => {
             
@@ -764,7 +671,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                                     d.serverResponse.data[i] = newData;
                                 }
                             }
-                            debugger
+                            
                         }
                         else {
                             d.serverResponse.data.unshift(item.data);
@@ -772,40 +679,28 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     })
                     return d;
                 });
-                debugger
+                
                 let activeTable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
                 this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList_MasterCpy: JSON.parse(JSON.stringify(varMaster)) }, () => {
                     this.setState({ qualityCheckList: JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy)) }, () => {
-                        debugger
+
                         this.onGridUpdate(activeTable.name, activeTable.type);
                     });
                 });
-                alert("Successfully updated");
+                        alert("Successfully updated");
             } else {
                 alert(res.response.message);
                 console.log(res.response.message);
             }
-
-
-
         }).catch(error => {
-            debugger
+            
             alert(error);
         });
 
     }
 
-
-    getRowStyle(params: any) {
-        if (params.node.rowIndex % 2 === 0) {
-            return 'my-shaded-effect';
-        }
-    }
-
-
-
-
-    onUpdatePatchItem = (eve: any) => {
+    ///<onUpdatePatchItem> Triggers when cell is modified & update the data to qualityCheckItem_PatchItems
+    private onUpdatePatchItem = (eve: any) => {
 
 
         let clnStateObj: IState = { ...this.state };
@@ -860,15 +755,14 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         }
     }
 
-    onCellValueChanged = (eve: any) => {
+    ///<onCellValueChanged> Triggers when cell is modified & calls onUpdatePatchItem method
+    private onCellValueChanged = (eve: any) => {
 
         this.onUpdatePatchItem(eve);
     }
 
-
-
-    onGridReady(eve: any) {
-        console.log('Sai Teja' + eve);
+    ///<onGridReady> Ag-grid Initializing API components
+    private onGridReady(eve: any) {
         this.state.gridOptions.api = eve.api;
         this.state.gridOptions.columnApi = eve.columnApi;
         eve.api.sizeColumnsToFit();
@@ -876,19 +770,21 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         this.setState({ gridOptions: this.state.gridOptions });
     }
 
-
-    onQuickFilterChanged = (eve: any) => {
+    ///<onQuickFilterChanged> Triggers when value in changes in txt box and filter data in grid based on provided input txt.
+    private onQuickFilterChanged = (eve: any) => {
         const { value } = eve.target;
         this.state.gridOptions.api.setQuickFilter(value);
     };
 
-    isFirstColumn(params: any) {
+    ///<isFirstColumn> <Archive AG-Grid Functions>
+    private isFirstColumn(params: any) {
         var displayedColumns = params.columnApi.getAllDisplayedColumns();
         var thisIsFirstColumn = displayedColumns[0] === params.column;
         return thisIsFirstColumn;
     }
 
-    compareValues(params: any) {
+    ///<compareValues> <Archive AG-Grid Functions>
+    private compareValues(params: any) {
 
         if (params.oldValue.toString() > params.newValue.toString()) {
             return { headerClass: "class-make" }

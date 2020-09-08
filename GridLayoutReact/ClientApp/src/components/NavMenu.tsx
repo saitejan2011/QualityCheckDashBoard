@@ -13,7 +13,7 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
             <header>
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3" light>
                     <div className="container-fluid">
-                        <NavbarBrand tag={Link} to="/">Grid Layout React</NavbarBrand>
+                        <NavbarBrand tag={Link} to="/">U Lepton - Configuration Management Screen</NavbarBrand>
                         <NavbarToggler onClick={this.toggle} className="mr-2"/>
                         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={this.state.isOpen} navbar>
                             <ul className="navbar-nav flex-grow">

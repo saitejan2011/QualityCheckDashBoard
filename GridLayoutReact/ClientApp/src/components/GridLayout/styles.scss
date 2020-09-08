@@ -1,6 +1,22 @@
 .gridLayoutContainer {
     width: 96%;
     margin: auto;
+
+    .btn-container {
+        min-width: 138px;
+        margin-bottom: 2px;
+        padding: 0px 5px;
+    }
+
+    .ext-right-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .search-txtbox-container .input-group {
+        min-width: 270px;
+    }
+
     .gridLayoutInnerContainer {
         width: 100%;
         height: 82vh;
@@ -15,9 +31,13 @@
     background: #fff !important;
 }
 
-.ext-right {
+.ex-right {
     display: flex;
     flex-direction: row-reverse;
+}
+
+.ext-right {
+    margin-left: auto;
 }
 
 .btn-action{
@@ -53,7 +73,3 @@
 
     
 }
-.btn-container{
-min-width: 138px;
-    margin-bottom: 2px;
-    }
