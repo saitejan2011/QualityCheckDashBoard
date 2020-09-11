@@ -12,3 +12,17 @@ C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Services\obj\Debug\n
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.csproj.CopyComplete
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.dll
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.Services.deps.json
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.Services.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.Services.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.IServices.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.Models.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.IServices.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\bin\Debug\netstandard2.0\GridLayoutReact.Models.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.csprojAssemblyReference.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.AssemblyInfoInputs.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.AssemblyInfo.cs
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.csproj.CopyComplete
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Services\obj\Debug\netstandard2.0\GridLayoutReact.Services.pdb

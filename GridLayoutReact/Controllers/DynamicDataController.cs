@@ -28,8 +28,6 @@ namespace GridLayoutReact.Controllers
 
         }
 
-        
-
         [HttpGet]
         public List<Models.DB.Table> GetTables()
         {
@@ -41,6 +39,8 @@ namespace GridLayoutReact.Controllers
         {
             return _dynamicData.GetTableData(tableName, schemaType);
         }
+
+       
 
         [HttpGet]
         public List<TableSchema> GetTableSchema(string tableName, string schemaType)

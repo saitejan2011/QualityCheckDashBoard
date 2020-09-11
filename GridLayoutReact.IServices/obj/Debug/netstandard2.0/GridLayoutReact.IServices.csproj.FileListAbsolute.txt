@@ -10,3 +10,15 @@ C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.IServices\obj\Debug\
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.csproj.CopyComplete
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.dll
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\bin\Debug\netstandard2.0\GridLayoutReact.IServices.deps.json
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\bin\Debug\netstandard2.0\GridLayoutReact.IServices.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\bin\Debug\netstandard2.0\GridLayoutReact.IServices.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\bin\Debug\netstandard2.0\GridLayoutReact.Models.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\bin\Debug\netstandard2.0\GridLayoutReact.Models.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.csprojAssemblyReference.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.AssemblyInfoInputs.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.AssemblyInfo.cs
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.csproj.CopyComplete
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.IServices\obj\Debug\netstandard2.0\GridLayoutReact.IServices.pdb

@@ -7,3 +7,12 @@ C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Models\obj\Debug\net
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.AssemblyInfo.cs
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.dll
 C:\Users\saite\source\repos\GridLayoutReact\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\bin\Debug\netstandard2.0\GridLayoutReact.Models.deps.json
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\bin\Debug\netstandard2.0\GridLayoutReact.Models.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\bin\Debug\netstandard2.0\GridLayoutReact.Models.pdb
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.csprojAssemblyReference.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.AssemblyInfoInputs.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.AssemblyInfo.cs
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.dll
+C:\Users\Admin\Source\Repos\QualityCheckDashBoard\GridLayoutReact.Models\obj\Debug\netstandard2.0\GridLayoutReact.Models.pdb

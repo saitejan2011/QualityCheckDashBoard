@@ -105,10 +105,6 @@ namespace GridLayoutReact.Services
             }
         }
 
-
-
-
-
         public ServerResponse GetRowsById(PatchRow patchItem)
         {
             try
@@ -244,8 +240,6 @@ namespace GridLayoutReact.Services
 
             }
         }
-
-
         public List<List> GetOutputExecutionResult(SqlCommand cmd, dynamic tblKeys, Dictionary<string, string> result, string formType)
         {
             List<List> listObj = new List<List>();
@@ -272,13 +266,11 @@ namespace GridLayoutReact.Services
             {
 
 
-                listObj.Add(new List() { Data = result, FormType = formType, IsResponseSuccessfull = false, Message =ex.Message.ToString()});
+                listObj.Add(new List() { Data = result, FormType = formType, IsResponseSuccessfull = false, Message = ex.Message.ToString() });
             }
 
             return listObj;
         }
-
-
 
         public Response UpdateItemInDB(EditRow editRowObj)
         {
@@ -322,10 +314,10 @@ namespace GridLayoutReact.Services
                         listObj.AddRange(GetOutputExecutionResult(cmd, tblKeys, result, "EDIT"));
 
                     }
-                    if(listObj.Where(s => s.IsResponseSuccessfull == false).ToList().Count>0)
-                    return new Response() { IsResponseSuccess = false, Message = listObj.Where(s=>s.IsResponseSuccessfull==false).FirstOrDefault().Message, Result = listObj };
+                    if (listObj.Where(s => s.IsResponseSuccessfull == false).ToList().Count > 0)
+                        return new Response() { IsResponseSuccess = false, Message = listObj.Where(s => s.IsResponseSuccessfull == false).FirstOrDefault().Message, Result = listObj };
                     else
-                    return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
+                        return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
                 }
             }
             catch (Exception ex)
@@ -336,6 +328,7 @@ namespace GridLayoutReact.Services
 
         }
 
+     
 
         public Response DeleteItemFromDB(DeleteRow delRowObj)
         {
@@ -366,7 +359,7 @@ namespace GridLayoutReact.Services
                         cmd.CommandText = string.Format("DELETE FROM {0} WHERE {1} IN ({2})", delRowObj.TableName, identityColumn.ColumnName, ids);
                         cmd.ExecuteNonQuery();
                     }
-                    
+
                 }
                 else
                 {
@@ -381,14 +374,12 @@ namespace GridLayoutReact.Services
             }
         }
 
-
-
         public Response PatchItems(TransceivalExchange clientPatchRequestObj)
         {
-            Response responseObj= new Response();
+            Response responseObj = new Response();
             try
             {
-                
+
 
                 string tableName = clientPatchRequestObj.TableName.ToString();
                 string schemaType = clientPatchRequestObj.Type != null ? clientPatchRequestObj.Type.ToString() : string.Empty;

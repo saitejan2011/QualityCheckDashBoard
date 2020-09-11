@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj": {}
+    "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj": {}
   },
   "projects": {
-    "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj": {
+    "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj",
         "projectName": "GridLayoutReact.IServices",
-        "projectPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj",
-        "packagesPath": "C:\\Users\\saite\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.IServices\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\saite\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -27,8 +27,8 @@
         "frameworks": {
           "netstandard2.0": {
             "projectReferences": {
-              "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
-                "projectPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj"
+              "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj"
               }
             }
           }
@@ -59,21 +59,21 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
+    "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj",
         "projectName": "GridLayoutReact.Models",
-        "projectPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj",
-        "packagesPath": "C:\\Users\\saite\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\saite\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -114,21 +114,21 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj": {
+    "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
         "projectName": "GridLayoutReact.Services",
-        "projectPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
-        "packagesPath": "C:\\Users\\saite\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Services\\obj\\",
+        "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\saite\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -141,11 +141,11 @@
         "frameworks": {
           "netstandard2.0": {
             "projectReferences": {
-              "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj": {
-                "projectPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj"
+              "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj"
               },
-              "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
-                "projectPath": "C:\\Users\\saite\\source\\repos\\GridLayoutReact\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj"
+              "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj"
               }
             }
           }
@@ -196,7 +196,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
         }
       }
     }

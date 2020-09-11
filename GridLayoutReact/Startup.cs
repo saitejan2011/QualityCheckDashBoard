@@ -29,6 +29,7 @@ namespace GridLayoutReact
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddSingleton<IDynamicData, DynamicData>();
+            services.AddSingleton<IAppData, AppData>();
 
 
             services.Configure<AppSettings>(this.Configuration.GetSection("AppSettings"));
