@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "dT+j7Q9ihDwCp52vhZL5P0AYK1lRJy1Kt3y2bNW//fgP6WLvzKT7WpFaK7bt4LzD46zSRJ0YltsZ4GDLmRtmcA==",
+  "dgSpecHash": "17qbNJU3Ts3azM+E+I12KvJD7A53AGp7JsFH3GDO/VAXcT/c4lYlvgtnUxTqvx3Ie+h/0XzLBjB/YlOt4SVuQA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"

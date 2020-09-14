@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\src\Reducers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\GridLayoutReact.IServices\GridLayoutReact.IServices.csproj" />
     <ProjectReference Include="..\GridLayoutReact.Models\GridLayoutReact.Models.csproj" />
     <ProjectReference Include="..\GridLayoutReact.Services\GridLayoutReact.Services.csproj" />

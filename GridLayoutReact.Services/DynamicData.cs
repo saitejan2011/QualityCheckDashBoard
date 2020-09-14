@@ -230,8 +230,10 @@ namespace GridLayoutReact.Services
 
                         listObj.AddRange(GetOutputExecutionResult(cmd, tblKeys, result, "NEW"));
                     }
-                    return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
-
+                    if (listObj.Where(s => s.IsResponseSuccessfull == false).ToList().Count > 0)
+                        return new Response() { IsResponseSuccess = false, Message = listObj.Where(s => s.IsResponseSuccessfull == false).FirstOrDefault().Message, Result = listObj };
+                    else
+                        return new Response() { IsResponseSuccess = true, Message = "SUCCESS", Result = listObj };
                 }
             }
             catch (Exception ex)
@@ -389,6 +391,7 @@ namespace GridLayoutReact.Services
                 var editItemList = clientPatchRequestObj.List.Where(obj => obj.FormType == "EDIT").Select(s => s.Data).ToList();
                 var identityColumn = schema.Where(s => s.IsIdentity == true).FirstOrDefault();
                 bool isResponseValid = true;
+                string inValidResponseTxt = string.Empty;
 
                 TransceivalExchange transExchnageObj = new TransceivalExchange() { TableName = tableName, IdentityColumnName = identityColumn.ColumnName, Type = schemaType, List = new List<List>(), };
 
@@ -404,7 +407,9 @@ namespace GridLayoutReact.Services
                         }
                         else
                         {
+                            transExchnageObj.List.AddRange(responseObj.Result);
                             isResponseValid = false;
+                            inValidResponseTxt = responseObj.Message.ToString();
                         }
                     }
 
@@ -417,6 +422,8 @@ namespace GridLayoutReact.Services
                         }
                         else
                         {
+                            transExchnageObj.List.AddRange(responseObj.Result);
+                            inValidResponseTxt = responseObj.Message.ToString();
                             isResponseValid = false;
                         }
                     }
@@ -425,7 +432,7 @@ namespace GridLayoutReact.Services
                 {
                     return new Response() { IsResponseSuccess = false, Message = "There is no Identity column. Cannot proccess the action" };
                 }
-                return new Response() { IsResponseSuccess = isResponseValid, Message = responseObj.Message.ToString(), TransExchange = transExchnageObj };
+                return new Response() { IsResponseSuccess = isResponseValid, Message = inValidResponseTxt, TransExchange = transExchnageObj };
             }
             catch (Exception ex)
             {

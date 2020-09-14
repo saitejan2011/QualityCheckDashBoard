@@ -18,12 +18,13 @@ import { QualityCheckFormType } from '../../Models/QualityCheckFormType';
 import { IColumnSchema } from '../../Models/IColumnSchema';
 import { IServerResponse } from '../../Models/IServerResponse';
 import { IDelete } from '../../Models/IDelete';
+import Loader from '../Loader';
 
 const util = new Utilities();
 
 export default class GridLayout extends React.PureComponent<any, IState> {
     public util = new Utilities();
-     
+
     /// <constructor> Initializing State And Props
     constructor(props: any) {
         super(props);
@@ -47,7 +48,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     onCellDOMUpdate: this.onCellDOMUpdate.bind(this),
                     floatingFilter: false,
                     filterParams: {
-                        comparator: function (filterLocalDateAtMidnight:any, cellValue:any) {
+                        comparator: function (filterLocalDateAtMidnight: any, cellValue: any) {
                             var dateAsString = cellValue;
                             var dateParts = dateAsString.split('/');
                             var cellDate = new Date(
@@ -92,19 +93,21 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             },
             qualityCheckList: [],
             qualityCheckList_MasterCpy: [],
-            qualityCheckList_PatchTable: {} as IPatchTable
-           
+            qualityCheckList_PatchTable: {} as IPatchTable,
+            isLoaderEnable: true
+
         }
     }
 
     /// <componentDidMount> Initial API calls when component is loaded (GetTables).
     async componentDidMount() {
         this.state.gridOptions.api.showLoadingOverlay();
-        let tables = await this.getTables();
+        let tables: any[] = await this.getTables();
         await this.setTables(tables).then((tableProp: any) => {
             this.onGridUpdate(tableProp.name, tableProp.type);
         }, () => {
-                
+            debugger
+            this.setState({ isLoaderEnable: false });
         });
     }
 
@@ -112,6 +115,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     public render() {
         return (
             <div className="gridLayoutContainer">
+
                 <div className="row mb-1">
                     <div className="col-md-6 form-group">
                         <div className="input-group">
@@ -131,6 +135,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                             <input type="text" onInput={this.onQuickFilterChanged} className="form-control" placeholder="Search..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
                             <div className="input-group-append d-block">
                                 <span className="input-group-text" >Search</span>
+
                             </div>
                         </div>
                     </div>
@@ -146,19 +151,19 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                                 <FontAwesomeIcon icon={faPlus} /> New </button>
                         </div>
                         <div className="ext-right ext-right-container">
-                        {Object.keys(this.state.qualityCheckList_PatchTable).length === 0 || this.state.qualityCheckList_PatchTable.List.length <= 0 ? ""
-                            : <div className="btn-container ">
-                                <button className="btn shell-btn btn-action col" onClick={this.onSubmit}>({this.state.qualityCheckList_PatchTable.List.length}) <FontAwesomeIcon icon={faSave} /> Save </button>
-                            </div>
-                        }
-                        <div className=" btn-container ">
-                            <button className="btn shell-btn btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
+                            {Object.keys(this.state.qualityCheckList_PatchTable).length === 0 || this.state.qualityCheckList_PatchTable.List.length <= 0 ? ""
+                                : <div className="btn-container ">
+                                    <button className="btn shell-btn btn-action col" onClick={this.onSubmit}>({this.state.qualityCheckList_PatchTable.List.length}) <FontAwesomeIcon icon={faSave} /> Save </button>
+                                </div>
+                            }
+                            <div className=" btn-container ">
+                                <button className="btn shell-btn btn-action col" onClick={this.onDelete}><FontAwesomeIcon icon={faArchive} /> Delete</button>
                             </div>
                         </div>
-                        
+
                     </div>
                     <div className="col-md-6 px-0 ext-right btn-container">
-                       
+
                     </div>
                 </div>
 
@@ -172,6 +177,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     </AgGridReact>
                 </div>
                 <FormModal  ></FormModal>
+                <Loader isActive={this.state.isLoaderEnable}></Loader>
+
             </div>
         );
     }
@@ -232,8 +239,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     ///<getTableData> get Table Data along with its schema.
     private getTableData = async (tblName: string, tableType: string) => {
-        
-        let tblDataUrl = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.getTableData+"?tableName=" + tblName + "&schemaType=" + tableType;
+
+        let tblDataUrl = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.getTableData + "?tableName=" + tblName + "&schemaType=" + tableType;
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             this.util.getDataFromDB(tblDataUrl).then((tblData: any) => {
                 if (tblData)
@@ -268,11 +275,11 @@ export default class GridLayout extends React.PureComponent<any, IState> {
             },
             qualityCheckList: varQualityCheckList
         }, () => {
-                this.state.gridOptions.api.hideOverlay();
-                this.scrambleAndRefreshAll();
-                if (varQualityCheckItem.serverResponse.data.length <= 0) {
-                    this.state.gridOptions.api.showNoRowsOverlay();
-                }
+            this.state.gridOptions.api.hideOverlay();
+            this.scrambleAndRefreshAll();
+            if (varQualityCheckItem.serverResponse.data.length <= 0) {
+                this.state.gridOptions.api.showNoRowsOverlay();
+            }
         });
     }
 
@@ -280,6 +287,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
     private onGridUpdate = (tblName: string, tblType: string) => {
         //let clnQCObj: IState =  this.state;
         this.state.gridOptions.api.showLoadingOverlay();
+        this.setState({ isLoaderEnable: true });
         let varQualityCheckList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList));
 
         let varQualityCheckMasterList: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy));
@@ -291,12 +299,12 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         let varQualityCheckMasterItem: ITable = this.getQualityCheckListTable(tblName, varQualityCheckMasterList);
 
         varQualityCheckItem.isActive = true;
-        
+
         varQualityCheckMasterItem.isActive = true;
 
 
         if (varQualityCheckItem && !(varQualityCheckItem.isLoaded)) {
-            
+
             varQualityCheckItem.isLoaded = true;
             varQualityCheckMasterItem.isLoaded = true;
 
@@ -304,11 +312,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
                 varQualityCheckItem.serverResponse = { data: JSON.parse(JSON.stringify(tblData.data)), schemas: JSON.parse(JSON.stringify(tblData.schemas)) };
                 varQualityCheckMasterItem.serverResponse = { data: JSON.parse(JSON.stringify(tblData.data)), schemas: JSON.parse(JSON.stringify(tblData.schemas)) };
-
-                //this.setMasterQualityCheckList(tblName, Object.assign({}, tblData));
-                this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList })
-
                 this.setQualityCheckListData(varQualityCheckItem, varQualityCheckList);
+                this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList, isLoaderEnable: false });
 
             }).catch((error: any) => {
                 this.state.gridOptions.api.hideOverlay();
@@ -316,14 +321,14 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         }
         else {
             this.setQualityCheckListData(varQualityCheckItem, varQualityCheckList);
-            this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList });
+            this.setState({ qualityCheckList_MasterCpy: varQualityCheckMasterList, isLoaderEnable: false });
         }
     }
 
     ///<getAgGridColData> Returns column dynamic column definition array.
     private getAgGridColData = (schemas: IColumnSchema[]): ColDef[] => {
         let colArr: ColDef[] = [];
-        
+
         schemas.forEach((key: IColumnSchema) => {
             colArr.push({
                 headerName: util.capitalizeFLetter(key.columnName.trim()),
@@ -351,14 +356,15 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     ///<onCellStyleUpdate> Triggers when cell value is changed. We can update cell style dyamically.
     private onCellStyleUpdate = (params: any) => {
-        
+
         let focusedCell = this.state.gridOptions.api.getFocusedCell();
         let activeQCMasterTable: ITable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
-        
+
         let identityColumn: IColumnSchema = this.getIdentityColumn(activeQCMasterTable.serverResponse.schemas);
         let focusedColumn: IColumnSchema = activeQCMasterTable.serverResponse.schemas.filter(s => s.columnName == params.column.colId)[0];
         if (focusedColumn && identityColumn && params.value != undefined) {
-            let isValid: boolean = this.validateColumn(params.value, focusedColumn);
+            //let isValid: boolean = this.validateColumn(params.value, focusedColumn);
+            let isValid: boolean = true;
             let isColumnModified: boolean = this.isColumnModified(params.data, focusedColumn, identityColumn, activeQCMasterTable);
             let bgColor: string;
             if (!isValid) {
@@ -460,9 +466,6 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         else {
             this.onGridUpdate(tblName, tblType);
         }
-
-
-
     }
 
     ///<getActiveTable> Returns the active table in the qualityCheckList state.
@@ -545,20 +548,20 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                         Type: clnActiveQCTable.type,
                         Data: qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") < 0)
                     }
-                    
+
 
                     let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.deleteItemFromDB;
                     if (delObj.Data && delObj.Data.length > 0) {
                         this.util.deleteDataFromDB(tablesURL, delObj).then(res => {
-                            
+
                             activeQCTable = this.onQualityCheckItemDelete(qc_selectedRows, activeQCTable, identityColumnName);
                             activeQCMasterTable = this.onQualityCheckItemDelete(qc_selectedRows, activeQCMasterTable, identityColumnName);
                         }).catch(error => {
-                            
+
                             alert("error in deleting");
 
                         }).finally(() => {
-                            
+
                             this.onDeleteListUpdate(activeQCTable, activeQCMasterTable, QCTablePatchItem, columnSchema, qc_selectedRows, identityColumnName);
                             this.setDeleteOpsState(QCTableList, QCTableMasterList, QCTablePatchItem, activeQCTable).then(res => {
                                 this.onGridUpdate(activeQCTable.name, activeQCTable.type);
@@ -569,7 +572,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     else {
                         this.onDeleteListUpdate(activeQCTable, activeQCMasterTable, QCTablePatchItem, columnSchema, qc_selectedRows, identityColumnName);
                         this.setDeleteOpsState(QCTableList, QCTableMasterList, QCTablePatchItem, activeQCTable).then(res => {
-                            
+
                             this.onGridUpdate(activeQCTable.name, activeQCTable.type);
                             alert("Successfully deleted");
                         });
@@ -584,7 +587,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     ///<onFilterLocalItems> delete unsaved new items from the grid.
     private onFilterLocalItems = (qc_selectedRows: any[], columnSchema: IColumnSchema, activeQCTable: ITable, identityColumnName: string) => {
-        
+
         let tempSelectedIdList = qc_selectedRows.filter((s: any) => s[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0);
         tempSelectedIdList.forEach((qc_row: any) => {
             activeQCTable.serverResponse.data = activeQCTable.serverResponse.data.filter((qc_selectedRow: any) => { return qc_selectedRow[identityColumnName] != qc_row[identityColumnName]; });
@@ -593,7 +596,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
     ///<setDeleteOpsState> updates state of deleted items from all qualityCheck related list .
     private setDeleteOpsState = (QCTableList: ITable[], QCTableMasterList: ITable[], QCTablePatchItem: IPatchTable, activeQCTable: ITable) => {
-        
+
         return new Promise<any>((resolve: (items: any) => void, reject: (error: any) => void): void => {
             this.setState({ qualityCheckList: QCTableList, qualityCheckList_MasterCpy: QCTableMasterList, qualityCheckList_PatchTable: QCTablePatchItem }, () => {
                 resolve(this.state);
@@ -614,7 +617,7 @@ export default class GridLayout extends React.PureComponent<any, IState> {
 
         if (QCTablePatchItem && Object.keys(QCTablePatchItem).length > 0) {
             QCTablePatchItem = this.onQualityCheckPatchItemDelete(qc_selectedRows, QCTablePatchItem, identityColumnName);
-            
+
             if (QCTablePatchItem.List && QCTablePatchItem.List.length <= 0) {
                 QCTablePatchItem = {} as IPatchTable;
             }
@@ -636,21 +639,20 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         while (i--) {
             QCTablePatchItem.List.splice(arr[i - 1], 1);
         }
-        
+
         return QCTablePatchItem;
     }
 
     ///<onSubmit> Triggers when save btn clicked, submit the data to the DB.
     private onSubmit = () => {
-
-
+        debugger
         this.state.gridOptions.api.stopEditing();
         let ss = this.state.gridOptions.api.getSelectedRows();
         //if (ss.length > 0)
         //    this.onUpdatePatchItem({ data: ss[0] });
         let tablesURL = Constants.hostURL + "/" + Constants.controller.dynamicData + "/" + Constants.actions.patchItems;
         this.util.patchDataToDB(tablesURL, this.state.qualityCheckList_PatchTable).then(res => {
-            
+
             let identityColumnName: string = res.response.transExchange.identityColumnName;
             let isResponseSuccessfull: boolean = res.response.transExchange.list.length > 0;
             res.response.transExchange.list.forEach((s: any) => {
@@ -658,44 +660,105 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                     isResponseSuccessfull = false;
                 }
             });
+            debugger;
 
             let varMaster: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy));
-            if (isResponseSuccessfull) {
-                varMaster.filter(qc_item => qc_item.name == res.response.transExchange.tableName).forEach((d: any, index: number) => {
-                    res.response.transExchange.list.forEach((item: any) => {
-                        if (d.serverResponse.data.filter((s: any) => s[identityColumnName] == item.data[identityColumnName]).length > 0) {
-                            for (let i = 0; i < d.serverResponse.data.length; i++) {
-                                if (d.serverResponse.data[i][identityColumnName] == item.data[identityColumnName]) {
-                                    let newData;
-                                    newData = Object.assign({}, item.data);
-                                    d.serverResponse.data[i] = newData;
-                                }
-                            }
-                            
-                        }
-                        else {
-                            d.serverResponse.data.unshift(item.data);
-                        }
-                    })
-                    return d;
-                });
-                
-                let activeTable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
-                this.setState({ qualityCheckList_PatchTable: {} as IPatchTable, qualityCheckList_MasterCpy: JSON.parse(JSON.stringify(varMaster)) }, () => {
-                    this.setState({ qualityCheckList: JSON.parse(JSON.stringify(this.state.qualityCheckList_MasterCpy)) }, () => {
+            let varQCTbl: ITable[] = JSON.parse(JSON.stringify(this.state.qualityCheckList));
+            let varPatchTbl: IPatchTable = JSON.parse(JSON.stringify(this.state.qualityCheckList_PatchTable));
 
-                        this.onGridUpdate(activeTable.name, activeTable.type);
-                    });
-                });
-                        alert("Successfully updated");
+            this.onUpdatedQualityCheckMasterData(varMaster, res, identityColumnName, false);
+            debugger;
+            //varQCTbl.filter(qc_item => qc_item.name == res.response.transExchange.tableName).forEach((current_item: any) => {
+            //    current_item.serverResponse.data.forEach((s: any, index: number, obj: any) => {
+            //        if (s[identityColumnName].toString().toLowerCase().indexOf("tempid") >= 0) {
+            //            obj.splice(index, 1);
+            //        }
+            //    });
+            //});
+            
+            debugger;
+           // this.onUpdatedQualityCheckMasterData(varQCTbl, res, identityColumnName, true);
+
+            let arr: number[] = [];
+            varPatchTbl.List.forEach((qc_PatchItem: any, index: number, obj: any) => {
+
+                let currentItem = res.response.transExchange.list.filter((res_item: any) => res_item.data[identityColumnName] == qc_PatchItem.Data[identityColumnName])[0];
+                if (currentItem && !(currentItem.isResponseSuccessfull)) {
+                    qc_PatchItem.IsValid = currentItem.isResponseSuccessfull;
+                }
+                else {
+                    arr.push(index);
+                    //obj.splice(index, 1);
+                }
+            });
+            let i = arr && arr.length;
+            while (i--) {
+                varPatchTbl.List.splice(arr[i], 1);
+            }
+            if (varPatchTbl.List && varPatchTbl.List.length < 0) {
+                varPatchTbl = {} as IPatchTable
+            }
+            debugger;
+            let activeTable = this.getActiveTable(this.state.qualityCheckList_MasterCpy);
+            this.setState({ qualityCheckList_PatchTable: varPatchTbl, qualityCheckList_MasterCpy: JSON.parse(JSON.stringify(varMaster)), qualityCheckList: JSON.parse(JSON.stringify(varQCTbl)) }, () => {
+                    this.onGridUpdate(activeTable.name, activeTable.type);
+            });
+            if (isResponseSuccessfull) {
+                alert("Successfully updated");
             } else {
                 alert(res.response.message);
                 console.log(res.response.message);
             }
         }).catch(error => {
-            
+
             alert(error);
         });
+
+    }
+
+    //private onUpdatedQualityCheckData = (varQCTbl: ITable[], response: any, identityColumnName: string): ITable[] => {
+    //    debugger;
+    //    varQCTbl.filter(qc_item => qc_item.name == response.response.transExchange.tableName).forEach((d: any, index: number) => {
+    //        response.response.transExchange.list.forEach((item: any) => {
+
+    //                if (d.serverResponse.data.filter((s: any) => s[identityColumnName] == item.data[identityColumnName]).length > 0) {
+    //                    for (let i = 0; i < d.serverResponse.data.length; i++) {
+    //                        if (d.serverResponse.data[i][identityColumnName] == item.data[identityColumnName]) {
+    //                            debugger
+    //                            if (item.isResponseSuccessfull) {
+    //                                let newData = Object.assign({}, item.data);
+    //                                d.serverResponse.data[i] = newData;
+    //                            }
+    //                        }
+    //                    }
+    //                }
+
+    //        });
+
+    //    });
+    //    return varQCTbl;
+    //}
+
+    private onUpdatedQualityCheckMasterData = (varQCTbl: ITable[], response: any, identityColumnName: string, isAgGridQCTbl: boolean): ITable[] => {
+        varQCTbl.filter(qc_item => qc_item.name == response.response.transExchange.tableName).forEach((d: any, index: number) => {
+            response.response.transExchange.list.forEach((item: any) => {
+                if (isAgGridQCTbl || item.isResponseSuccessfull) {
+                    if (d.serverResponse.data.filter((s: any) => s[identityColumnName] == item.data[identityColumnName]).length > 0) {
+                        for (let i = 0; i < d.serverResponse.data.length; i++) {
+                            if (d.serverResponse.data[i][identityColumnName] == item.data[identityColumnName]) {
+                                let newData = Object.assign({}, item.data);
+                                d.serverResponse.data[i] = newData;
+                            }
+                        }
+                    }
+                    else {
+                        d.serverResponse.data.unshift(item.data);
+                    }
+                }
+            })
+            return d;
+        });
+        return varQCTbl;
 
     }
 
@@ -708,6 +771,8 @@ export default class GridLayout extends React.PureComponent<any, IState> {
         let clnQualityCheckList: ITable[] = clnStateObj.qualityCheckList;
 
         let clnActiveQCTable: ITable = this.getActiveTable(clnQualityCheckList);
+
+        let clnActiveQCMasterTable: ITable = this.getActiveTable(clnStateObj.qualityCheckList_MasterCpy);
 
         let clnQC_PatchTable: IPatchTable = clnStateObj.qualityCheckList_PatchTable;
 
@@ -724,40 +789,83 @@ export default class GridLayout extends React.PureComponent<any, IState> {
                 return item.Data[columnSchema.columnName] == eve.data[columnSchema.columnName]
             })[0];
 
-            let varFormType: QualityCheckFormType = eve.data[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0 ? QualityCheckFormType.New : QualityCheckFormType.Edit;
+            //let qc_Keys = Object.keys(clnActiveQCTable.serverResponse.data[0]);
+            debugger
+            let isRowModified: boolean = this.isRowPropModified(clnActiveQCMasterTable, eve, columnSchema.columnName);
+            if (isRowModified) {
+                let varFormType: QualityCheckFormType = eve.data[columnSchema.columnName].toString().toLowerCase().indexOf("tempid") >= 0 ? QualityCheckFormType.New : QualityCheckFormType.Edit;
 
-            if (clnQC_PatchTable_ListItem) {
+                if (clnQC_PatchTable_ListItem) {
 
-                clnQC_PatchTable_ListItem.Data = eve.data;
+                    clnQC_PatchTable_ListItem.Data = eve.data;
 
-                clnQC_PatchTable_ListItem.FormType = varFormType;
-            }
-            else {
-                clnQC_PatchTable.List.push({
-                    Data: eve.data,
-                    FormType: varFormType,
-                    IsValid: false
+                    clnQC_PatchTable_ListItem.FormType = varFormType;
+                }
+                else {
+                    clnQC_PatchTable.List.push({
+                        Data: eve.data,
+                        FormType: varFormType,
+                        IsValid: true
+                    });
+                }
+
+
+                this.setState(prevState => ({
+                    ...prevState,
+                    qualityCheckList_PatchTable: { ...clnQC_PatchTable }
+                    //qualityCheckList: clnQualityCheckList
+                }), () => {
+
                 });
             }
-
-
-            this.setState(prevState => ({
-                ...prevState,
-                qualityCheckList_PatchTable: { ...clnQC_PatchTable }
-                //qualityCheckList: clnQualityCheckList
-            }), () => {
-
-            });
-
+            else {
+                clnQC_PatchTable.List.forEach((qc_PatchItem: any, index: number, obj: any) => {
+                    if (qc_PatchItem.Data[columnSchema.columnName] == eve.data[columnSchema.columnName]) {
+                        obj.splice(index, 1);
+                    }
+                });
+                this.setState(prevState => ({
+                    ...prevState,
+                    qualityCheckList_PatchTable: { ...clnQC_PatchTable }
+                    //qualityCheckList: clnQualityCheckList
+                }), () => {
+                    debugger
+                });
+            }
         }
         else {
             alert("Identity Column Missing, Cannot Process further");
         }
     }
 
+    private isRowPropModified = (qc_MasterTable: ITable, eve: any, identityColumnName: string): boolean => {
+        let keys = Object.keys(qc_MasterTable.serverResponse.data[0]);
+        let varQCMasterRowItem = qc_MasterTable.serverResponse.data.filter(item => {
+            return item[identityColumnName] == eve.data[identityColumnName]
+        })[0];
+        let isColModified: boolean = false;
+        keys.forEach((key: any) => {
+            if (varQCMasterRowItem[key] != eve.data[key]) {
+                if (varQCMasterRowItem[key] == undefined || varQCMasterRowItem[key] == null || varQCMasterRowItem[key] == "") {
+                    if (eve.data[key] == undefined || eve.data[key] == null || eve.data[key] == "") {
+                    }
+                    else {
+                        isColModified = true;
+                    }
+                }
+                else {
+                    isColModified = true;
+                }
+            }
+        })
+
+        return isColModified;
+
+    }
+
     ///<onCellValueChanged> Triggers when cell is modified & calls onUpdatePatchItem method
     private onCellValueChanged = (eve: any) => {
-
+        debugger
         this.onUpdatePatchItem(eve);
     }
 

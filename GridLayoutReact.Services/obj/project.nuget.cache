@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9ppRybGphtcp8qnwQEqfiIuiUjWawD11DqCF5sx76/sc03aSVitWtY4NQwR0wqPhOywKsN9wQp9ojmokFYtu9g==",
+  "dgSpecHash": "O5sZ9uz2Wp2wC6taDrJHOkeXYuuqXmc502qK/UQLENoB0XIliOJllGTWLKl7xyno1AQF+rr5GA/QWXJtlthjZg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\automapper\\10.0.0\\automapper.10.0.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.0.1\\automapper.extensions.microsoft.dependencyinjection.8.0.1.nupkg.sha512",

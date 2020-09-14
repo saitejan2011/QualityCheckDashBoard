@@ -7,6 +7,7 @@ export interface IState {
     qualityCheckList: ITable[];
     qualityCheckList_PatchTable: IPatchTable;
     qualityCheckList_MasterCpy: ITable[];
+    isLoaderEnable: boolean;
     
 }
 

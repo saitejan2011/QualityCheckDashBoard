@@ -1522,11 +1522,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
       "projectName": "GridLayoutReact.Services",
-      "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
+      "projectPath": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\GridLayoutReact.Services.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.Services\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -1542,11 +1542,11 @@
       "frameworks": {
         "netstandard2.0": {
           "projectReferences": {
-            "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj"
+            "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj": {
+              "projectPath": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.IServices\\GridLayoutReact.IServices.csproj"
             },
-            "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Source\\Repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj"
+            "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj": {
+              "projectPath": "C:\\Users\\Admin\\source\\repos\\QualityCheckDashBoard\\GridLayoutReact.Models\\GridLayoutReact.Models.csproj"
             }
           }
         }
