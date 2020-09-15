@@ -32,14 +32,13 @@ export default class AppResult extends React.PureComponent<any, IState> {
     /// <componentDidMount> Initial API calls when component is loaded (GetTables).
     async componentDidMount() {
         //  this.state.gridOptions.api.showLoadingOverlay();
-
         let appNames: any[] = await this.getAppNames();
-        await this.setAppNames(appNames).then((app: any) => {
-            this.onGridUpdate(app.name);
-        }, () => {
-
-        });
-        debugger;
+        if (appNames.length > 0) {
+            await this.setAppNames(appNames).then((app: any) => {
+                this.onGridUpdate(app.name);
+            });
+        }
+        
 
     }
 
